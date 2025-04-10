@@ -8,7 +8,7 @@
 
 Consulte o meu perfil <a href="https://github.com/alexandervieira/alexandervieira/blob/master/README.md">aqui</a>.
 
-<h1 align="center" style="font-weight: bold;">Meu Projeto 💻</h1>
+<h1 align="center" style="font-weight: bold;">DeveloperEvaluation 💻</h1>
 
 ## Índice
 
@@ -56,37 +56,53 @@ Consulte <a href="https://github.com/alexandervieira/repositorio-base/blob/maste
 [CSHARP_BADGE]:https://img.shields.io/badge/c%23-%23239120.svg?style=for-the-badge&logo=csharp&logoColor=white
 [SWAGGER_BADGE]:https://img.shields.io/badge/-Swagger-%23Clojure?style=for-the-badge&logo=swagger&logoColor=white
 [SQLSERVER_BADGE]:https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white
+[POSTGRESQL_BADGE]:https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white
+[REDIS_BADGE]:https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white
 
 ![.Net][DOTNET_BADGE]
 ![C#][CSHARP_BADGE]
 ![Azure][AZURE_BADGE]
 ![Swagger][SWAGGER_BADGE]
-![MicrosoftSQLServer][SQLSERVER_BADGE]
+![POSTGRESQL_BADGE]
+![REDIS_BADGE]
 
-- .NET 6
-    - ASP.NET MVC Core
-    - ASP.NET WebApi
-    - ASP.NET Minimal API
+- .NET 8   
+    - ASP.NET WebApi    
     - ASP.NET Identity Core
-    - Refresh Token
-    - JWT with rotactive public / private key    
-    - GRPC
-    - Background Services
-    - Entity Framework Core 6
+    - Roles
+    - Claims    
+    - JWT    
+    - EntityFramework Core 8
 
-- Components / Services
+- Components / Services    
     - RabbitMQ
     - EasyNetQ
-    - Refit 
-    - Polly
-    - Bogus
-    - Dapper
-    - FluentValidator
+    - CQRS
     - MediatR
-    - Swagger UI with JWT support
-    - NetDevPack
-    - NetDevPack.Identity
-    - NetDevPack.Security.JWT
+    - Event Storage
+    - Docker
+    - Refit
+    - Retry com Polly
+    - Circuit Breaker
+    - Fluent Validation
+    - FluentAPI
+    - APIGateway BFF
+    - SOLID
+    - Dapper
+    - BackgroundService
+    - IAggregateRoot
+    - UnitOfWork 
+    - ExceptionMiddleware
+    - ViewComponents
+    - Razor Extensions
+    - ValidationProblemDetails (RFC7807)
+    - Swagger (Documentação API)
+    - xUnit
+    - Bogus
+    - NSubstitute
+    - AutoMoq
+    - PostgreSQL
+    - MongoDB
 
 - Hosting
     - IIS
