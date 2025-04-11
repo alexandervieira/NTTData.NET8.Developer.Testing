@@ -2,9 +2,14 @@
 
 namespace Ambev.DeveloperEvaluation.Domain.Common;
 
-public class BaseEntity : IComparable<BaseEntity>
+public abstract class BaseEntity : IComparable<BaseEntity>
 {
     public Guid Id { get; set; }
+
+    public BaseEntity()
+    {
+        Id = Guid.NewGuid();
+    }
 
     public Task<IEnumerable<ValidationErrorDetail>> ValidateAsync()
     {
