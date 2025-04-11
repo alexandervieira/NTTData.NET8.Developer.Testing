@@ -2,10 +2,11 @@
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Validation.Catalog;
 using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+using Ambev.DeveloperEvoluation.Core.DomainObjects;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
 {
-    public class Product : BaseEntity
+    public class Product : BaseEntity, IAggregateRoot 
     {
         public Guid CategoryId { get; private set; }
         public string Title { get; private set; } = null!;

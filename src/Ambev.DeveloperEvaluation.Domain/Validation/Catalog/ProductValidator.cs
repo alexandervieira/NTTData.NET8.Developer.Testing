@@ -10,7 +10,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Validation.Catalog
             RuleFor(p => p.Title)
                 .NotEmpty()
                 .MinimumLength(3).WithMessage("Title must be at least 3 characters long.")
-                .MaximumLength(50).WithMessage("Title cannot be longer than 50 characters.");
+                .MaximumLength(150).WithMessage("Title cannot be longer than 150 characters.");
 
             RuleFor(p => p.Description)
                 .NotEmpty()
