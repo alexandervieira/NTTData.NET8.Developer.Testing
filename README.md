@@ -130,10 +130,11 @@ Consulte <a href="https://github.com/alexandervieira/repositorio-base/blob/maste
 
 ---
 
-### Toda a aplicação é baseada em uma solução única com X API's e uma aplicação web (MVC)
+### Toda a aplicação é baseada em uma solução única com X API's e uma aplicação web
 
 <p align="center">
-    <img alt="read before" src="https://user-images.githubusercontent.com/5068797/161202409-edcf2f38-0714-4de5-927d-1a02be4501ec.png" />
+    <!--<img alt="read before" src="https://user-images.githubusercontent.com/5068797/161202409-edcf2f38-0714-4de5-927d-1a02be4501ec.png" />-->
+    <img alt="read before" src="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/blob/master/.doc/arquitetura-developer-evoluation.jpg" />
 </p>
 
 ## Erros e solicitações de recursos
