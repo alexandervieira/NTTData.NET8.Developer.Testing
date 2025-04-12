@@ -51,7 +51,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
 
         private async Task<bool> DebitItemStock(Guid productId, int quantity)
         {
-            var product = await _productRepository.ObterPorId(productId);
+            var product = await _productRepository.GetById(productId);
             if (product == null) return false;
 
             if (!product.HasStock(quantity))
@@ -73,7 +73,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
 
         private async Task<bool> ReplenishItemStock(Guid productId, int quantity)
         {
-            var product = await _productRepository.ObterPorId(productId);
+            var product = await _productRepository.GetById(productId);
             if (product == null) return false;
             product.ReplenishStock(quantity);
             _productRepository.UpdateProduct(product);

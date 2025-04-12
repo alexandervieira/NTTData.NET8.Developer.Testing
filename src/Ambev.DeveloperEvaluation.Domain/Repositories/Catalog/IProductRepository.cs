@@ -6,7 +6,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
     public interface IProductRepository : IRepository<Product>
     {
         Task<IEnumerable<Product>> GetAll();
-        Task<Product> ObterPorId(Guid id);
+        Task<Product> GetById(Guid id);
         Task<IEnumerable<Product>> GetByCategory(int code);
         Task<IEnumerable<Category>> GetCategories();
 

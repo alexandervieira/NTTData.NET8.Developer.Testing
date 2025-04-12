@@ -21,7 +21,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Events.Catalog
 
         public async Task Handle(ProductLowStockEvent notification, CancellationToken cancellationToken)
         {
-            var product = await _productRepository.ObterPorId(notification.AggregateId);
+            var product = await _productRepository.GetById(notification.AggregateId);
             // Enviar e-mail ou notificação para o responsável
         }
 
