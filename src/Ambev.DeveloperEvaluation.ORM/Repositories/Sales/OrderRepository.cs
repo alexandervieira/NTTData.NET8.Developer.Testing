@@ -12,12 +12,12 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
 
         public OrderRepository(DefaultContext context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public IUnitOfWork UnitOfWork => _context;
 
-        public async Task<Order> GetById(Guid id)
+        public async Task<Order?> GetById(Guid id)
         {
             return await _context.Orders.FindAsync(id);
         }
@@ -31,7 +31,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
                             .ToListAsync();
         }
 
-        public async Task<Order> GetDraftOrderByClientId(Guid clientId)
+        public async Task<Order?> GetDraftOrderByClientId(Guid clientId)
         {
             var order = await _context.Orders.FirstOrDefaultAsync(p => p.CustomerId == clientId && p.Status == OrderStatus.Draft);
             if (order == null) return null;
@@ -50,20 +50,22 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
 
         public void Add(Order order)
         {
+            if (order == null) throw new ArgumentNullException(nameof(order));
             _context.Orders.Add(order);
         }
 
         public void Update(Order order)
         {
+            if (order == null) throw new ArgumentNullException(nameof(order));
             _context.Orders.Update(order);
         }
 
-        public async Task<OrderItem> GetItemById(Guid id)
+        public async Task<OrderItem?> GetItemById(Guid id)
         {
             return await _context.OrderItems.FindAsync(id);
         }
 
-        public async Task<OrderItem> GetItemByOrder(Guid orderId, Guid productId)
+        public async Task<OrderItem?> GetItemByOrder(Guid orderId, Guid productId)
         {
             return await _context
                 .OrderItems
@@ -74,20 +76,23 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
 
         public void AddItem(OrderItem orderItem)
         {
+            if (orderItem == null) throw new ArgumentNullException(nameof(orderItem));
             _context.OrderItems.Add(orderItem);
         }
 
         public void UpdateItem(OrderItem orderItem)
         {
+            if (orderItem == null) throw new ArgumentNullException(nameof(orderItem));
             _context.OrderItems.Update(orderItem);
         }
 
         public void RemoveItem(OrderItem orderItem)
         {
+            if (orderItem == null) throw new ArgumentNullException(nameof(orderItem));
             _context.OrderItems.Remove(orderItem);
         }
 
-        public async Task<Voucher> GetVoucherByCode(string code)
+        public async Task<Voucher?> GetVoucherByCode(string code)
         {
             return await (from v in _context.Vouchers
                           where v.Code == code

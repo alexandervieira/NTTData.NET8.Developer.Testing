@@ -9,9 +9,9 @@ namespace Ambev.DeveloperEvoluation.Core.Communication.Mediator
     {
         private readonly IMediator _mediator;
 
-        public MediatorHandler()
-        {
-        }
+        //public MediatorHandler()
+        //{
+        //}
 
         public MediatorHandler(IMediator mediator)
         {

@@ -4,37 +4,29 @@ using FluentValidation.Results;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
 {
-    public class AddOrderItemCommand : Command
+    public class UpdateOrderItemCommand : Command
     {
         public Guid CustomerId { get; private set; }
         public Guid ProductId { get; private set; }
-        public string Name { get; private set; }
         public int Quantity { get; private set; }
-        public decimal UnitPrice { get; private set; }
 
-        public AddOrderItemCommand(Guid customerId,
-                                   Guid productId,
-                                   string name,
-                                   int quantity,
-                                   decimal unitPrice)
+        public UpdateOrderItemCommand(Guid customerId, Guid productId, int quantity)
         {
             CustomerId = customerId;
             ProductId = productId;
-            Name = name;
             Quantity = quantity;
-            UnitPrice = unitPrice;
         }
 
         public override bool IsValid()
         {
-            ValidationResult = new AddOrderItemValidation().Validate(this);
+            ValidationResult = new UpdateOrderItemValidation().Validate(this);
             return ValidationResult.IsValid;
         }
     }
 
-    public class AddOrderItemValidation : AbstractValidator<AddOrderItemCommand>
+    public class UpdateOrderItemValidation : AbstractValidator<UpdateOrderItemCommand>
     {
-        public AddOrderItemValidation()
+        public UpdateOrderItemValidation()
         {
             RuleFor(c => c.CustomerId)
                 .NotEqual(Guid.Empty)
@@ -44,10 +36,6 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
                 .NotEqual(Guid.Empty)
                 .WithMessage("Invalid product ID");
 
-            RuleFor(c => c.Name)
-                .NotEmpty()
-                .WithMessage("The product name was not provided");
-
             RuleFor(c => c.Quantity)
                 .GreaterThan(0)
                 .WithMessage("The minimum quantity for an item is 1");
@@ -55,10 +43,6 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
             RuleFor(c => c.Quantity)
                 .LessThan(15)
                 .WithMessage("The maximum quantity for an item is 15");
-
-            RuleFor(c => c.UnitPrice)
-                .GreaterThan(0)
-                .WithMessage("The unit price must be greater than 0");
         }
     }
 

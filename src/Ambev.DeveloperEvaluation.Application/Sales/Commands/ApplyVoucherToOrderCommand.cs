@@ -5,12 +5,12 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
 {
     public class ApplyVoucherToOrderCommand : Command
     {
-        public Guid ClientId { get; private set; }
+        public Guid CustomerId { get; private set; }
         public string VoucherCode { get; private set; }
 
-        public ApplyVoucherToOrderCommand(Guid clientId, string voucherCode)
+        public ApplyVoucherToOrderCommand(Guid customerId, string voucherCode)
         {
-            ClientId = clientId;
+            CustomerId = customerId;
             VoucherCode = voucherCode;
         }
 
@@ -25,7 +25,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
     {
         public ApplyVoucherToOrderValidation()
         {
-            RuleFor(c => c.ClientId)
+            RuleFor(c => c.CustomerId)
                 .NotEqual(Guid.Empty)
                 .WithMessage("Invalid client ID");
 

@@ -31,7 +31,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
             return await _productRepository.UnitOfWork.CommitAsync();
         }        
 
-        public async Task<bool> DebitListProductsOrder(ListProductsOrder collection)
+        public async Task<bool> DebitListProductsOrder(OrderProductsList collection)
         {
             if (collection == null || collection.Items == null || !collection.Items.Any())
             {
@@ -44,7 +44,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
             return await _productRepository.UnitOfWork.CommitAsync();
         }
 
-        public Task<bool> ReplenishListProductsOrder(ListProductsOrder collection)
+        public Task<bool> ReplenishListProductsOrder(OrderProductsList collection)
         {
             throw new NotImplementedException();
         }
@@ -66,7 +66,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
                 await _mediatorHandler.PublishDomainEvent(new ProductLowStockEvent(product.Id, product.QuantityStock));
             }
 
-            _productRepository.UpdateProduct(product);
+            await _productRepository.UpdateProduct(product);
 
             return true;
         }
@@ -76,7 +76,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
             var product = await _productRepository.GetById(productId);
             if (product == null) return false;
             product.ReplenishStock(quantity);
-            _productRepository.UpdateProduct(product);
+            await _productRepository.UpdateProduct(product);
             return true;
         }
 

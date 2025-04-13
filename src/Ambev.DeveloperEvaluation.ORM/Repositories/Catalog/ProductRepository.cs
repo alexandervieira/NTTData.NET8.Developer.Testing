@@ -23,7 +23,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
                 .ToListAsync();
         }
 
-        public async Task<Product> GetById(Guid id)
+        public async Task<Product?> GetById(Guid id)
         {
             var product = await _context.Products
                 .Include(p => p.Category)
@@ -65,7 +65,8 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 
         public void DeleteProduct(Guid id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);            
+            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            if (product == null) throw new ArgumentNullException(nameof(product));
             _context.Products.Remove(product);            
             
         }

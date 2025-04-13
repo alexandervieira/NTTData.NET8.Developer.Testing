@@ -110,8 +110,15 @@ public class DefaultContext : DbContext, IUnitOfWork
         }
     }
 }
-public class YourDbContextFactory : IDesignTimeDbContextFactory<DefaultContext>
+public class DefaultDbContextFactory : IDesignTimeDbContextFactory<DefaultContext>
 {
+    private readonly IMediatorHandler _mediatorHandler;
+
+    public DefaultDbContextFactory(IMediatorHandler mediatorHandler)
+    {
+        _mediatorHandler = mediatorHandler;
+    }
+
     public DefaultContext CreateDbContext(string[] args)
     {
         var basePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "Ambev.DeveloperEvaluation.WebApi");
@@ -129,7 +136,7 @@ public class YourDbContextFactory : IDesignTimeDbContextFactory<DefaultContext>
                b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
         );
 
-        IMediatorHandler _mediatorHandler = new MediatorHandler();
+        //IMediatorHandler _mediatorHandler = new MediatorHandler();
         return new DefaultContext(builder.Options, _mediatorHandler);
     }
 }

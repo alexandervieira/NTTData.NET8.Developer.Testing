@@ -25,7 +25,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities
             product?.Cancel();
 
             //Assert            
-            Assert.True(product?.Active);
+            Assert.False(product?.Active);
         }
 
         [Fact(DisplayName = "Activated Product")]
@@ -39,7 +39,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities
             product?.Activate();
 
             //Assert            
-            Assert.False(product?.Active);
+            Assert.True(product?.Active);
         }
 
         [Fact(DisplayName = "Create Product")]

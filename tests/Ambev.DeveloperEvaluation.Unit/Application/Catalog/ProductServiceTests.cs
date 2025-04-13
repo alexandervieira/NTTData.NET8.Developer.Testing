@@ -171,6 +171,12 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                                       request.Image, request.Rating, request.Dimensions);
 
             var updatedProduct = product;
+            var image = updatedProduct.Image != null ? updatedProduct.Image : string.Empty;
+            var rate = updatedProduct.Rating != null ? updatedProduct.Rating.Rate : 0;
+            var ratingCount = updatedProduct.Rating != null ? updatedProduct.Rating.Count : 0;
+            var height = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Height : 0;
+            var width = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Width : 0;
+            var depth = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Depth : 0;
 
             _mapper.Map<Product>(request).Returns(product);
             _productRepository.UpdateProduct(product).Returns(Task.FromResult(updatedProduct));
@@ -180,11 +186,10 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Title = updatedProduct.Title,
                 Description = updatedProduct.Description,
                 Price = updatedProduct.Price,
-                Image = updatedProduct.Image,
+                Image = image,
                 QuantityStock = updatedProduct.QuantityStock,
-                Rating = new Rating(updatedProduct.Rating.Rate, updatedProduct.Rating.Count),
-                Dimensions = new Dimensions(updatedProduct.Dimensions.Height,
-                                            updatedProduct.Dimensions.Width,updatedProduct.Dimensions.Depth),
+                Rating = new Rating(rate, ratingCount),
+                Dimensions = new Dimensions(height, width, depth),
                 Active = updatedProduct.Active
             });
 
@@ -199,11 +204,11 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             Assert.Equal(updatedProduct.Price, result.Price);
             Assert.Equal(updatedProduct.Image, result.Image);
             Assert.Equal(updatedProduct.QuantityStock, result.QuantityStock);
-            Assert.Equal(updatedProduct.Rating.Rate, result.Rating.Rate);
-            Assert.Equal(updatedProduct.Rating.Count, result.Rating.Count);
-            Assert.Equal(updatedProduct.Dimensions.Height, result.Dimensions.Height);
-            Assert.Equal(updatedProduct.Dimensions.Width, result.Dimensions.Width);
-            Assert.Equal(updatedProduct.Dimensions.Depth, result.Dimensions.Depth);
+            Assert.Equal(rate, result.Rating.Rate);
+            Assert.Equal(ratingCount, result.Rating.Count);
+            Assert.Equal(height, result.Dimensions.Height);
+            Assert.Equal(width, result.Dimensions.Width);
+            Assert.Equal(depth, result.Dimensions.Depth);
             Assert.Equal(updatedProduct.Active, result.Active);
             await _productRepository.Received(1).UpdateProduct(product);
         }

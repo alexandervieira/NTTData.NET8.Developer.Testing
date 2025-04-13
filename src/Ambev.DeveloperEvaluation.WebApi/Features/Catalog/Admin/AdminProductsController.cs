@@ -70,7 +70,7 @@ public class AdminProductsController : BaseController
 
         var response = await _productService.GetByCategoryName(request.Name);
 
-        if (response == null)
+        if (response == null || !response.Any())
             return NotFound(new ApiResponse
             {
                 Success = false,
