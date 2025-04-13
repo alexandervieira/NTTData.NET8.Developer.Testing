@@ -6,8 +6,8 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Sales
     public interface IOrderRepository : IRepository<Order>
     {
         Task<Order?> GetById(Guid id);
-        Task<IEnumerable<Order>> GetListByCustomerId(Guid clientId);
-        Task<Order?> GetDraftOrderByCustomerId(Guid clientId);
+        Task<IEnumerable<Order>> GetListByCustomerId(Guid CustomerId);
+        Task<Order?> GetDraftOrderByCustomerId(Guid CustomerId);
         void Add(Order order);
         void Update(Order order);
 

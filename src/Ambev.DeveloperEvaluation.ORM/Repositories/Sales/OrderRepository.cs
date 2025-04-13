@@ -22,18 +22,18 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
             return await _context.Orders.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Order>> GetListByCustomerId(Guid clientId)
+        public async Task<IEnumerable<Order>> GetListByCustomerId(Guid customerId)
         {
             return await _context
                             .Orders
                             .AsNoTracking()
-                            .Where(p => p.CustomerId == clientId)
+                            .Where(p => p.CustomerId == customerId)
                             .ToListAsync();
         }
 
-        public async Task<Order?> GetDraftOrderByCustomerId(Guid clientId)
+        public async Task<Order?> GetDraftOrderByCustomerId(Guid customerId)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(p => p.CustomerId == clientId && p.Status == OrderStatus.Draft);
+            var order = await _context.Orders.FirstOrDefaultAsync(p => p.CustomerId == customerId && p.Status == OrderStatus.Draft);
             if (order == null) return null;
 
             await _context.Entry(order)

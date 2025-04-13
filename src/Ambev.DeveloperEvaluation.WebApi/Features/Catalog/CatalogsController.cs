@@ -12,7 +12,7 @@ namespace Ambev.DeveloperEvaluation.WebApi.Features.Catalog;
 /// Controller for managing catalog operations
 /// </summary>
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/catalog")]
 public class CatalogsController : BaseController
 {
     //private readonly IMediator _mediator;

@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Catalog.Services;
+using Ambev.DeveloperEvaluation.Application.Sales.Queries;
 using Ambev.DeveloperEvaluation.Domain.Events.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
@@ -27,6 +28,7 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         builder.Services.AddScoped<IOrderRepository, OrderRepository>();
         builder.Services.AddScoped<IProductService, ProductService>();
         builder.Services.AddScoped<IStockService, StockService>();
+        builder.Services.AddScoped<IOrderQueries, OrderQueries>();
         builder.Services.AddScoped<INotificationHandler<ProductLowStockEvent>,ProdutoEventHandler>();
         
     }
