@@ -7,7 +7,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
     public class Category : BaseEntity
     {
         public string Name { get; private set; } = null!;
-        public int Code { get; private set; }
+        public int Code { get; private set; }        
 
         // EF Relation
         public virtual ICollection<Product>? Products { get; set; }

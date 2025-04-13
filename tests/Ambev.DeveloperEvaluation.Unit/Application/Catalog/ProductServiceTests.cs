@@ -131,7 +131,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Description = "Test Description"
             };
             var product = new Product(request.Title, request.Description, false, 100, request.CategoryId, 
-                                      "http://imagem.jpg", new Rating(2.9,10), new Dimensions(10,10,10), DateTime.UtcNow);
+                                      "http://imagem.jpg", new Rating(2.9,10), new Dimensions(10,10,10));
             var addedProduct = product;
             var AddedCategory = category;
             _mapper.Map<Product>(request).Returns(product);            
@@ -160,15 +160,15 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Title = "Updated Product",
                 Description = "Updated Description",
                 Price = 200,
-                Canceled = false,
+                Active = false,
                 Image = "updated_image.png",
                 QuantityStock = 50,
                 Rating = new Rating(4.5, 10),
                 Dimensions = new Dimensions(10, 20, 30)
             };
 
-            var product = new Product(request.Title, request.Description, request.Canceled, request.Price, request.CategoryId,
-                                      request.Image, request.Rating, request.Dimensions, DateTime.UtcNow);
+            var product = new Product(request.Title, request.Description, request.Active, request.Price, request.CategoryId,
+                                      request.Image, request.Rating, request.Dimensions);
 
             var updatedProduct = product;
 
@@ -185,7 +185,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Rating = new Rating(updatedProduct.Rating.Rate, updatedProduct.Rating.Count),
                 Dimensions = new Dimensions(updatedProduct.Dimensions.Height,
                                             updatedProduct.Dimensions.Width,updatedProduct.Dimensions.Depth),
-                Canceled = updatedProduct.Canceled
+                Active = updatedProduct.Active
             });
 
             // Act
@@ -204,7 +204,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             Assert.Equal(updatedProduct.Dimensions.Height, result.Dimensions.Height);
             Assert.Equal(updatedProduct.Dimensions.Width, result.Dimensions.Width);
             Assert.Equal(updatedProduct.Dimensions.Depth, result.Dimensions.Depth);
-            Assert.Equal(updatedProduct.Canceled, result.Canceled);
+            Assert.Equal(updatedProduct.Active, result.Active);
             await _productRepository.Received(1).UpdateProduct(product);
         }
 

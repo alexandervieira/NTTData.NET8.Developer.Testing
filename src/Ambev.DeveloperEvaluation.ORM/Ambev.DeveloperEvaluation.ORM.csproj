@@ -11,6 +11,9 @@
 	  <None Remove="src\**" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="Contexts\SalesContext.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -25,5 +28,8 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Ambev.DeveloperEvaluation.Domain\Ambev.DeveloperEvaluation.Domain.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Contexts\" />
 	</ItemGroup>
 </Project>

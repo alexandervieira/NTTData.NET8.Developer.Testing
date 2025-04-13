@@ -3,6 +3,7 @@ using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Validation.Catalog;
 using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 using Ambev.DeveloperEvoluation.Core.DomainObjects;
+using System;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
 {
@@ -15,34 +16,32 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
         public string? Image { get; private set; }
         public int QuantityStock { get; private set; }
         public Rating? Rating { get; private set; }
-        public bool Canceled { get; private set; }
+        public bool Active { get; private set; }
         public Dimensions? Dimensions { get; private set; }
-        public virtual Category Category { get; set; } = null!;
-        public DateTime CreateDate { get; set; }
+        public virtual Category Category { get; set; } = null!;        
 
         protected Product() { }
 
-        public Product(string title, decimal price, bool canceled)
-            : this(title, "Minha descrição", canceled, price, Guid.NewGuid(), string.Empty, new Rating(0,0), new Dimensions(0, 0, 0), DateTime.UtcNow) { }
+        public Product(string title, decimal price, bool active)
+            : this(title, "Minha descrição", active, price, Guid.NewGuid(), string.Empty, new Rating(0,0), new Dimensions(0, 0, 0)) { }
 
-        public Product(string title, string description, bool canceled,
+        public Product(string title, string description, bool active,
                        decimal price, Guid categoryId, string image, Rating rating,
-                       Dimensions dimensions, DateTime createDate)
+                       Dimensions dimensions)
         {
             Title = title;
             Description = description;
-            Canceled = canceled;
+            Active = active;
             Price = price;
             CategoryId = categoryId;
             Image = image;
             Rating = rating;
             Dimensions = dimensions;
-            CreateDate = createDate;            
         }
 
-        public void Activate() => Canceled = false;
+        public void Activate() => Active = true;
 
-        public void Cancel() => Canceled = true;
+        public void Cancel() => Active = false;
 
         public void UpdateCategory(Category category)
         {

@@ -1,22 +1,32 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
+using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
+using Ambev.DeveloperEvaluation.ORM.Extensions;
+using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvoluation.Core.Data;
+using Ambev.DeveloperEvoluation.Core.Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace Ambev.DeveloperEvaluation.ORM;
 
 public class DefaultContext : DbContext, IUnitOfWork
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<Category> Categories { get; set; }
+    private readonly IMediatorHandler _mediatorHandler;
+    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Category> Categories { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+    public virtual DbSet<Voucher> Vouchers { get; set; }
 
-    public DefaultContext(DbContextOptions<DefaultContext> options) : base(options)
+    //public virtual DbSet<SeedingEntry> SeedingEntries { get; set; }
+
+    public DefaultContext(DbContextOptions<DefaultContext> options, 
+                          IMediatorHandler mediatorHandler) : base(options)
     {
+        _mediatorHandler = mediatorHandler;
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,44 +35,55 @@ public class DefaultContext : DbContext, IUnitOfWork
                e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
             property.SetColumnType("varchar(100)");
 
-        //modelBuilder.Ignore<Event>();
-                
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.Ignore<Event>();
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DefaultContext).Assembly);
+        //modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        
+        foreach (var relationship in modelBuilder.Model.GetEntityTypes().SelectMany(e => e.GetForeignKeys()))
+            relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
+
+        modelBuilder.HasSequence<int>("MySequence").StartsAt(1000).IncrementsBy(1);
+        
         base.OnModelCreating(modelBuilder);
     }
 
     public async Task<bool> CommitAsync()
     {
         foreach (var entry in ChangeTracker.Entries()
-            .Where(entry => entry.Entity.GetType().GetProperty("CreateDate") != null))
+            .Where(entry => entry.Entity.GetType().GetProperty("CreatedAt") != null))
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property("CreateDate").CurrentValue = DateTime.Now;
+                entry.Property("CreatedAt").CurrentValue = DateTime.Now;
             }
 
             if (entry.State == EntityState.Modified)
             {
-                entry.Property("CreateDate").IsModified = false;
+                entry.Property("CreatedAt").IsModified = false;
+                entry.Property("UpdatedAt").CurrentValue = DateTime.Now;
             }
         }
 
-        return await base.SaveChangesAsync() > 0;
+        var success = await base.SaveChangesAsync() > 0;
+        if (success) await _mediatorHandler.PublishEvents(this);
+
+        return success;
     }
 
     public bool Commit()
     {
         foreach (var entry in ChangeTracker.Entries()
-            .Where(entry => entry.Entity.GetType().GetProperty("CreateDate") != null))
+            .Where(entry => entry.Entity.GetType().GetProperty("CreatedAt") != null))
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property("CreateDate").CurrentValue = DateTime.Now;
+                entry.Property("CreatedAt").CurrentValue = DateTime.Now;
             }
 
             if (entry.State == EntityState.Modified)
             {
-                entry.Property("CreateDate").IsModified = false;
+                entry.Property("CreatedAt").IsModified = false;
+                entry.Property("UpdatedAt").CurrentValue = DateTime.Now;
             }
         }
 
@@ -108,6 +129,7 @@ public class YourDbContextFactory : IDesignTimeDbContextFactory<DefaultContext>
                b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
         );
 
-        return new DefaultContext(builder.Options);
+        IMediatorHandler _mediatorHandler = new MediatorHandler();
+        return new DefaultContext(builder.Options, _mediatorHandler);
     }
 }

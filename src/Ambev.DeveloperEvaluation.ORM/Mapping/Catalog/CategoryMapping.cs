@@ -12,7 +12,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping.Catalog
 
             builder.Property(c => c.Name)
                 .IsRequired()
-                .HasColumnType("varchar(250)");
+                .HasColumnType("varchar(150)");
 
             // 1 : N => Categories : Products
             builder.HasMany(c => c.Products)

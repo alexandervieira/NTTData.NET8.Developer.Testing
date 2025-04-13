@@ -36,6 +36,13 @@ public class Program
                 )
             );
 
+           // builder.Services.AddDbContext<SalesContext>(options =>
+           //    options.UseNpgsql(
+           //        builder.Configuration.GetConnectionString("SalesConnection"),
+           //        b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
+           //    )
+           //);
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.RegisterDependencies();

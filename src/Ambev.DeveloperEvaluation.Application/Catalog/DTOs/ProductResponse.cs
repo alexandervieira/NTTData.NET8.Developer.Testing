@@ -8,7 +8,7 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.DTOs
         public Guid CategoryId { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public bool Canceled { get; set; }
+        public bool Active { get; set; }
         public decimal Price { get; set; }
         public string Image { get; set; } = null!;
         public int QuantityStock { get; set; }

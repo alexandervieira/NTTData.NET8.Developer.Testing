@@ -31,8 +31,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Fixture
                     f.Random.Double(1, 100), // Width
                     f.Random.Double(1, 100), // Height
                     f.Random.Double(1, 100)  // Depth
-                ),
-                f.Date.Past(1) // CreateDate
+                )                
             ));
 
             return bogus.Generate(quantity);
