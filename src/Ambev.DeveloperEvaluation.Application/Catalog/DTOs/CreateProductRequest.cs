@@ -2,18 +2,17 @@
 
 namespace Ambev.DeveloperEvaluation.Application.Catalog.DTOs
 {
-    public class ProductResponse
+    public class CreateProductRequest
     {
-        public Guid Id { get; set; }
         public Guid CategoryId { get; set; }
         public string Title { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public bool Canceled { get; set; }
         public decimal Price { get; set; }
-        public string Image { get; set; } = null!;
-        public int QuantityStock { get; set; }
+        public string? Image { get; set; }
+        public int QuantityStock { get; set; }        
+        public bool Canceled { get; set; }
         public Rating Rating { get; set; } = null!;
-        public Dimensions Dimensions { get; set; } = null!;
-        //public IEnumerable<CategoryResponse> Categories { get; set; } = new List<CategoryResponse>();
+        public Dimensions Dimensions { get; set; } = null!;        
+
     }
 }

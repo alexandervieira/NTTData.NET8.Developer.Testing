@@ -28,12 +28,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
             var product = await _context.Products
                 .Include(p => p.Category)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null)
-            {
-                throw new NullReferenceException($"Product with ID {id} not found.");
-            }
+                .FirstOrDefaultAsync(p => p.Id == id);           
 
             return product;
         }
@@ -54,29 +49,54 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
                 .ToListAsync();
         }
 
-        public void AddProduct(Product product)
+        public async Task<Product> AddProduct(Product product)
         {
-            _context.Products.Add(product);
+            var result = await _context.Products.AddAsync(product);           
+            await _context.SaveChangesAsync();            
+            return result.Entity;
         }
 
-        public void UpdateProduct(Product product)
+        public async Task<Product> UpdateProduct(Product product)
         {
-            _context.Products.Update(product);
+            var result = _context.Products.Update(product);
+            await _context.SaveChangesAsync();            
+            return result.Entity;
         }
 
-        public void AddCategory(Category category)
+        public void DeleteProduct(Guid id)
         {
-            _context.Categories.Add(category);
+            var product = _context.Products.FirstOrDefault(p => p.Id == id);            
+            _context.Products.Remove(product);            
+            
         }
 
-        public void UpdateCategory(Category category)
+        public async Task<Category> AddCategory(Category category)
         {
-            _context.Categories.Update(category);
+            var result = _context.Categories.Add(category);
+            await _context.SaveChangesAsync();
+            return result.Entity;
+        }
+
+        public async Task<Category> UpdateCategory(Category category)
+        {
+            var result = _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
+            return result.Entity;
         }
 
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        public async Task<IEnumerable<Product>> GetByCategoryName(string categoryName)
+        {
+            var result = await _context.Products
+                .Include(p => p.Category)
+                .AsNoTracking()
+                .Where(p => p.Category.Name.ToUpper().Equals(categoryName.ToUpper()))
+                .ToListAsync();
+            return result;
         }
     }
     

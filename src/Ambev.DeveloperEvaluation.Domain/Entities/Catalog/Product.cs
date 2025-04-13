@@ -17,7 +17,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
         public Rating? Rating { get; private set; }
         public bool Canceled { get; private set; }
         public Dimensions? Dimensions { get; private set; }
-        public virtual Category Category { get; private set; } = null!;
+        public virtual Category Category { get; set; } = null!;
         public DateTime CreateDate { get; set; }
 
         protected Product() { }
@@ -37,7 +37,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
             Image = image;
             Rating = rating;
             Dimensions = dimensions;
-            CreateDate = createDate;
+            CreateDate = createDate;            
         }
 
         public void Activate() => Canceled = false;

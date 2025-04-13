@@ -40,18 +40,38 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
             return _mapper.Map<IEnumerable<CategoryResponse>>(await _productRepository.GetCategories());
         }
 
-        public Task<bool> AddProduct(ProductRequest request)
+        public async Task<ProductResponse> AddProduct(CreateProductRequest request)
         {
-            var product = _mapper.Map<Product>(request);
-            _productRepository.AddProduct(product);
-            return _productRepository.UnitOfWork.CommitAsync();
+            var product = _mapper.Map<Product>(request);            
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));            
+
+            var model = await _productRepository.AddProduct(product);
+            if (model == null)
+            {
+                throw new DomainException("Failed to add product.");
+            }
+           
+            var response = _mapper.Map<ProductResponse>(model);
+            return response;
         }
 
-        public Task<bool> UpdateProduct(ProductRequest request)
+        public async Task<ProductResponse> UpdateProduct(UpdateProductRequest request)
         {
             var product = _mapper.Map<Product>(request);
-            _productRepository.UpdateProduct(product);
-            return _productRepository.UnitOfWork.CommitAsync();
+            var model = await _productRepository.UpdateProduct(product);
+            if (model == null)
+            {
+                throw new DomainException("Failed to update product.");
+            }
+            var response = _mapper.Map<ProductResponse>(model);
+            return response;
+        }
+
+        public async Task<bool> DeleteProduct(Guid id)
+        {
+            _productRepository.DeleteProduct(id);
+            return await _productRepository.UnitOfWork.CommitAsync();
         }
 
         public async Task<ProductResponse> DebitStock(Guid id, int quantity)
@@ -76,6 +96,47 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
         {
             _productRepository.Dispose();
             _stockService.Dispose();
+        }
+
+        public async Task<IEnumerable<ProductResponse>> GetByCategoryName(string categoryName)
+        {
+            if(string.IsNullOrEmpty(categoryName))
+                throw new ArgumentNullException(nameof(categoryName));
+            
+            var model = await _productRepository.GetByCategoryName(categoryName);
+            if (model == null) return null;                
+            var response = _mapper.Map<IEnumerable<ProductResponse>>(model);
+            return response;
+        }
+
+        public async Task<CategoryResponse> AddCategory(CategoryRequest request)
+        {
+            var category = _mapper.Map<Category>(request);
+            if (category == null)
+                throw new ArgumentNullException(nameof(category));
+
+            var model = await _productRepository.AddCategory(category);
+            if (model == null)
+            {
+                throw new DomainException("Failed to add category.");
+            }
+            var response = _mapper.Map<CategoryResponse>(model);
+            return response;
+        }
+
+        public async Task<CategoryResponse> UpdateCategory(CategoryRequest request)
+        {
+            var category = _mapper.Map<Category>(request);
+            if (category == null)
+                throw new ArgumentNullException(nameof(category));
+
+            var model = await _productRepository.UpdateCategory(category);
+            if (model == null)
+            {
+                throw new DomainException("Failed to update category.");
+            }
+            var response = _mapper.Map<CategoryResponse>(model);
+            return response;
         }
     }
 }
