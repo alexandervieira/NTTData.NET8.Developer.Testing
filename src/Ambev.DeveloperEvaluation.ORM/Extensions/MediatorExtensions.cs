@@ -1,13 +1,15 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
+using Microsoft.EntityFrameworkCore;
 
 namespace Ambev.DeveloperEvaluation.ORM.Extensions
-{
+{   
     public static class MediatorExtensions
     {
-        public static async Task PublishEvents(this IMediatorHandler mediator, DefaultContext ctx)
+        public static async Task PublishEvents<TContext>(this IMediatorHandler mediator, TContext context)
+            where TContext : DbContext
         {
-            var domainEntities = ctx.ChangeTracker
+            var domainEntities = context.ChangeTracker
                 .Entries<BaseEntity>()
                 .Where(x => x.Entity.Notifications != null && x.Entity.Notifications.Any());
 
@@ -27,4 +29,5 @@ namespace Ambev.DeveloperEvaluation.ORM.Extensions
             await Task.WhenAll(tasks);
         }
     }
+
 }

@@ -35,14 +35,7 @@ public class Program
                     b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
                 )
             );
-
-           // builder.Services.AddDbContext<SalesContext>(options =>
-           //    options.UseNpgsql(
-           //        builder.Configuration.GetConnectionString("SalesConnection"),
-           //        b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-           //    )
-           //);
-
+           
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.RegisterDependencies();
@@ -60,7 +53,8 @@ public class Program
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             var app = builder.Build();
-            app.UseMiddleware<ValidationExceptionMiddleware>();
+
+            app.UseMiddleware<ValidationExceptionMiddleware>();            
 
             if (app.Environment.IsDevelopment())
             {

@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
+using Ambev.DeveloperEvaluation.Domain.Entities.Payments;
 using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
 using Ambev.DeveloperEvaluation.ORM.Extensions;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
@@ -8,6 +9,8 @@ using Ambev.DeveloperEvoluation.Core.Messages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using Product = Ambev.DeveloperEvaluation.Domain.Entities.Catalog.Product;
+using Order = Ambev.DeveloperEvaluation.Domain.Entities.Sales.Order;
 
 namespace Ambev.DeveloperEvaluation.ORM;
 
@@ -20,6 +23,8 @@ public class DefaultContext : DbContext, IUnitOfWork
     public virtual DbSet<Order> Orders { get; set; }
     public virtual DbSet<OrderItem> OrderItems { get; set; }
     public virtual DbSet<Voucher> Vouchers { get; set; }
+    public virtual DbSet<Payment> Payments { get; set; }
+    public virtual DbSet<Transaction> Transactions { get; set; }
 
     //public virtual DbSet<SeedingEntry> SeedingEntries { get; set; }
 
