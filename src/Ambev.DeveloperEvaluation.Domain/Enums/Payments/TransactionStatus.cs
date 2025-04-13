@@ -7,6 +7,7 @@
         Canceled = 3,
         Refunded = 4,
         Failed = 5,
-        Chargeback = 6
+        Chargeback = 6,
+        Declined = 7
     }
 }

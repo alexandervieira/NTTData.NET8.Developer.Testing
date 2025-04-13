@@ -13,6 +13,8 @@ using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Payments;
 using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.ORM.ExternalServices.AntiCorruption;
+using Ambev.DeveloperEvaluation.ORM.ExternalServices.AntiCorruption.Interfaces;
 using Ambev.DeveloperEvaluation.ORM.Repositories;
 using Ambev.DeveloperEvaluation.ORM.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.ORM.Repositories.Payments;
@@ -66,13 +68,13 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         #endregion
 
         #region Payments
-        builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();        
-        //builder.Services.AddScoped<IPaymentService, PaymentService>();
-        //builder.Services.AddScoped<ICreditCardPaymentFacade, CreditCardPaymentFacade>();
-        //builder.Services.AddScoped<IPayPalGateway, PayPalGateway>();
-        //builder.Services.AddScoped<IPagamentoConfigurationManager, PagamentoConfigurationManager>();
+        builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<ICreditCardPaymentFacade, CreditCardPaymentFacade>();
+        builder.Services.AddScoped<IPayPalGateway, PayPalGateway>();
+        builder.Services.AddScoped<IPaymentConfigurationManager, PagamentoConfigurationManager>();
 
-        //builder.Services.AddScoped<INotificationHandler<OrderStockConfirmedEvent>, PaymentEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<OrderStockConfirmedEvent>, PaymentEventHandler>();
         #endregion
 
     }
