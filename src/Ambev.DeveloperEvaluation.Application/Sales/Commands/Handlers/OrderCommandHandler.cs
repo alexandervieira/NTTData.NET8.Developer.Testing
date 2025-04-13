@@ -34,7 +34,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
         {
             if (!ValidateCommand(message)) return false;
 
-            var order = await _orderRepository.GetDraftOrderByClientId(message.CustomerId);
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
             var orderItem = new OrderItem(message.ProductId, message.Name, message.Quantity, message.UnitPrice);
 
             if (order == null)
@@ -69,7 +69,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
         {
             if (!ValidateCommand(message)) return false;
 
-            var order = await _orderRepository.GetDraftOrderByClientId(message.CustomerId);
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
             if (order == null)
             {
                 await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order not found!"));
@@ -101,7 +101,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
         {
             if (!ValidateCommand(message)) return false;
 
-            var order = await _orderRepository.GetDraftOrderByClientId(message.CustomerId);
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
             if (order == null)
             {
                 await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order not found!"));
@@ -134,7 +134,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
         {
             if (!ValidateCommand(message)) return false;
 
-            var order = await _orderRepository.GetDraftOrderByClientId(message.CustomerId);
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
             if (order == null)
             {
                 await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order not found!"));
@@ -169,7 +169,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
         {
             if (!ValidateCommand(message)) return false;
 
-            var order = await _orderRepository.GetDraftOrderByClientId(message.CustomerId);
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
             if (order == null) return false;
             order.StartOrder();
 
