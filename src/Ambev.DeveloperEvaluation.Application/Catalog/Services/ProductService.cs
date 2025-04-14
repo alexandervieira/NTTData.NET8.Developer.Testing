@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
@@ -20,9 +21,9 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductResponse>> GetAll()
+        public async Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string query)
         {
-            return _mapper.Map<IEnumerable<ProductResponse>>(await _productRepository.GetAll());
+            return _mapper.Map<PaginatedList<ProductResponse>>(await _productRepository.GetAll(pageNumber, pageSize, query));
         }
 
         public async Task<IEnumerable<ProductResponse>> GetByCategory(int code)

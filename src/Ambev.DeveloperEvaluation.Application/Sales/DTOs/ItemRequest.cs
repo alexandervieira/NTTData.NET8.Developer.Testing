@@ -2,21 +2,21 @@
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.DTOs
 {
-    public class AddItemRequest
+    public class ItemRequest
     {
         public Guid ProductId { get; set; }
         public int Quantity { get; set; }
 
-        public AddItemRequest(Guid productId, int quantity)
+        public ItemRequest(Guid productId, int quantity)
         {
             ProductId = productId;
             Quantity = quantity;
         }
     }
 
-    public class AddItemRequestValidator : AbstractValidator<AddItemRequest>
+    public class ItemRequestValidator : AbstractValidator<ItemRequest>
     {
-        public AddItemRequestValidator()
+        public ItemRequestValidator()
         {
             RuleFor(x => x.ProductId)
                 .NotEmpty()

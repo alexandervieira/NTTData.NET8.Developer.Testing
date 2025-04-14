@@ -1,10 +1,11 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
+using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
 {
     public interface IProductService : IDisposable
     {
-        Task<IEnumerable<ProductResponse>> GetAll();
+        Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string query);
         Task<ProductResponse> GetById(Guid id);
         Task<IEnumerable<ProductResponse>> GetByCategory(int code);
         Task<IEnumerable<ProductResponse>> GetByCategoryName(string categoryName);

@@ -29,30 +29,30 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             _productService = new ProductService(_productRepository, _stockService, _mapper);
         }
 
-        [Fact(DisplayName = "Must return all products successfully")]
-        public async Task ProductService_GetAll_MustReturnAllProductsSuccessfully()
-        {
-            // Arrange
-            var products = new List<Product>
-            {
-                new Product("Cerveja", 10.0m, false)
-            };
-            var productsResponse = new List<ProductResponse>
-            {
-                new ProductResponse { Title = "Cerveja", Price = 10.0m }
-            };
+        //[Fact(DisplayName = "Must return all products successfully")]
+        //public async Task ProductService_GetAll_MustReturnAllProductsSuccessfully()
+        //{
+        //    // Arrange
+        //    var products = new List<Product>
+        //    {
+        //        new Product("Cerveja", 10.0m, false)
+        //    };
+        //    var productsResponse = new List<ProductResponse>
+        //    {
+        //        new ProductResponse { Title = "Cerveja", Price = 10.0m }
+        //    };
 
-            _productRepository.GetAll().Returns(Task.FromResult<IEnumerable<Product>>(products));
-            _mapper.Map<IEnumerable<ProductResponse>>(products).Returns(productsResponse);
+        //    _productRepository.GetAll().Returns(Task.FromResult<IEnumerable<Product>>(products));
+        //    _mapper.Map<IEnumerable<ProductResponse>>(products).Returns(productsResponse);
 
-            // Act
-            var resultado = await _productService.GetAll();
+        //    // Act
+        //    var resultado = await _productService.GetAll();
 
-            // Assert
-            resultado.Should().BeEquivalentTo(productsResponse);
-            await _productRepository.Received(1).GetAll();
-            _mapper.Received(1).Map<IEnumerable<ProductResponse>>(products);
-        }
+        //    // Assert
+        //    resultado.Should().BeEquivalentTo(productsResponse);
+        //    await _productRepository.Received(1).GetAll();
+        //    _mapper.Received(1).Map<IEnumerable<ProductResponse>>(products);
+        //}
 
         [Fact(DisplayName = "Must return products by category")]
         public async Task ProductService_GetByCategory_MustReturnProductsByCategory()

@@ -5,6 +5,7 @@ using Ambev.DeveloperEvaluation.Application.Catalog.Services;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
 using Ambev.DeveloperEvaluation.Application.Catalog.Validations;
+using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Catalog;
 
@@ -21,7 +22,7 @@ public class CatalogsController : BaseController
     private readonly IMediatorHandler _mediatorHandler;
 
     /// <summary>
-    /// Initializes a new instance of UsersController
+    /// Initializes a new instance of catalogsController
     /// </summary>
     /// <param name="mediatorHandler">The mediator instance</param>
     /// <param name="mapper">The AutoMapper instance</param>
@@ -30,12 +31,42 @@ public class CatalogsController : BaseController
         _mapper = mapper;
         _productService = productService;
         _mediatorHandler = mediatorHandler;
+    }    
+
+    /// <summary>
+    /// Retrieves products
+    /// </summary>    
+    /// <returns>The products if found</returns>
+    [HttpGet("products")]
+    [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string query = null)
+    {
+        var response = await _productService.GetAll(pageNumber, pageSize, query);
+
+        if (response == null || !response.Any())
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Products not found."
+            });
+
+        return Ok(new PaginatedResponse<ProductResponse>
+        {
+            Success = true,
+            Message = "Products retrieved successfully",
+            Data = response,
+            CurrentPage = response.CurrentPage,
+            TotalPages = response.TotalPages,
+            TotalCount = response.TotalCount
+        });
     }
 
     /// <summary>
     /// Retrieves a product by ID
     /// </summary>
-    /// <param name="id">The unique identifier of the user</param>
+    /// <param name="id">The unique identifier of the product</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The product details if found</returns>
     [HttpGet("product-detail/{id}")]
@@ -57,28 +88,6 @@ public class CatalogsController : BaseController
         {
             Success = true,
             Message = "Product retrieved successfully",
-            Data = response
-        });
-    }
-
-    /// <summary>
-    /// Retrieves products
-    /// </summary>    
-    /// <returns>The products if found</returns>
-    [HttpGet("products")]
-    [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<ProductResponse>>), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProducts()
-    {
-        var response = await _productService.GetAll();
-        if(response == null || !response.Any())
-            return NotFound("No products found.");
-
-        return Ok(new ApiResponseWithData<IEnumerable<ProductResponse>>
-        {
-            Success = true,
-            Message = "Products retrieved successfully",
             Data = response
         });
     }

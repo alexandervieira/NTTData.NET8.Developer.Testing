@@ -1,7 +1,9 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
+﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvoluation.Core.Data;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 {
@@ -15,12 +17,17 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 
         public IUnitOfWork UnitOfWork => _context;
 
-        public async Task<IEnumerable<Product>> GetAll()
+        public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query)
         {
-            return await _context.Products
-                .Include(p => p.Category)
-                .AsNoTracking()
-                .ToListAsync();
+            string newquery = query != null ? query.ToLower() : string.Empty;
+            var catalogQuery = _context.Products.AsQueryable();
+
+            var source = catalogQuery.AsNoTrackingWithIdentityResolution()
+                                            .Where(x => EF.Functions.Like(x.Title.ToLower(), $"%{newquery}%"))
+                                            .OrderBy(x => x.Title).AsQueryable();
+
+            return await PaginatedList<Product>.CreateAsync(source, pageNumber, pageSize);
+            
         }
 
         public async Task<Product?> GetById(Guid id)
@@ -85,20 +92,30 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
             return result.Entity;
         }
 
+        public async Task<IEnumerable<Product>> GetByCategoryName(string categoryName)
+        {
+            //var result = await _context.Products
+            //    .Include(p => p.Category)
+            //    .AsNoTracking()
+            //    .Where(p => p.Category.Name.ToUpper().Equals(categoryName.ToUpper()))
+            //    .ToListAsync();
+            //return result;
+
+            string query = categoryName != null ? categoryName.ToLower() : string.Empty;
+            var catalogQuery = _context.Products.AsQueryable();
+            var source = catalogQuery.AsNoTrackingWithIdentityResolution()
+                                     .Include(p => p.Category)
+                                     .Where(x => EF.Functions.Like(x.Category.Name.ToLower(), $"%{query}%"))
+                                     .OrderBy(x => x.Title).AsQueryable();
+            return await source.ToListAsync();
+        }
+
         public void Dispose()
         {
             _context.Dispose();
         }
 
-        public async Task<IEnumerable<Product>> GetByCategoryName(string categoryName)
-        {
-            var result = await _context.Products
-                .Include(p => p.Category)
-                .AsNoTracking()
-                .Where(p => p.Category.Name.ToUpper().Equals(categoryName.ToUpper()))
-                .ToListAsync();
-            return result;
-        }
+        
     }
     
 }

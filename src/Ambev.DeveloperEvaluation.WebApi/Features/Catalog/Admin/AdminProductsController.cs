@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
-using Ambev.DeveloperEvaluation.WebApi.Common;
 using Ambev.DeveloperEvaluation.Application.Catalog.Services;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
 using Ambev.DeveloperEvaluation.Application.Catalog.Validations;
+using Ambev.DeveloperEvaluation.WebApi.Common;
+using Ambev.DeveloperEvaluation.Domain.Common;
+
 
 namespace Ambev.DeveloperEvaluation.WebApi.Features.Catalog.Admin;
 
@@ -38,22 +40,30 @@ public class AdminProductsController : BaseController
     /// </summary>    
     /// <returns>The products if found</returns>
     [HttpGet("products")]
-    [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<ProductResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetProducts()
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string query = null)
     {
-        var response = await _productService.GetAll();
-        if (response == null || !response.Any())
-            return NotFound("products not found.");
+        var response = await _productService.GetAll(pageNumber, pageSize, query);
 
-        return Ok(new ApiResponseWithData<IEnumerable<ProductResponse>>
+        if (response == null || !response.Any())
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Products not found."
+            });
+
+        return Ok(new PaginatedResponse<ProductResponse>
         {
             Success = true,
             Message = "Products retrieved successfully",
-            Data = response
+            Data = response,
+            CurrentPage = response.CurrentPage,
+            TotalPages = response.TotalPages,
+            TotalCount = response.TotalCount
         });
-    }    
+    }
 
     [HttpGet("products/category/{category}")]
     [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<ProductResponse>>), StatusCodes.Status200OK)]

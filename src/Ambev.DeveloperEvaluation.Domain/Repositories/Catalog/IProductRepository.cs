@@ -1,11 +1,12 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
+﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvoluation.Core.Data;
 
 namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<IEnumerable<Product>> GetAll();
+        Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query);
         Task<Product?> GetById(Guid id);
         Task<IEnumerable<Product>> GetByCategory(int code);
         Task<IEnumerable<Product>> GetByCategoryName(string categoryName);
