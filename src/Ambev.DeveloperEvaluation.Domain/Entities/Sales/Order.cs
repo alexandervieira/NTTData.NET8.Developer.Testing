@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums.Sales;
 using Ambev.DeveloperEvoluation.Core.DomainObjects;
 using FluentValidation.Results;
@@ -12,7 +12,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
         public Guid? VoucherId { get; private set; }
         public bool IsVoucherUsed { get; private set; }
         public decimal Discount { get; private set; }
-        public decimal TotalValue { get; private set; }        
+        public decimal TotalValue { get; private set; }
         public OrderStatus Status { get; private set; }
 
         private readonly List<OrderItem> _orderItems;
@@ -112,9 +112,15 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
                 _orderItems.Remove(existingItem);
             }
 
+            if (item.Quantity > 20)
+            {
+                throw new DomainException("The maximum quantity per product is 20.");
+            }
+
             item.CalculateValue();
             _orderItems.Add(item);
 
+            ApplyQuantityDiscount(item);
             CalculateOrderValue();
         }
 
@@ -142,6 +148,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
             _orderItems.Remove(existingItem);
             _orderItems.Add(item);
 
+            ApplyQuantityDiscount(item);
             CalculateOrderValue();
         }
 
@@ -184,6 +191,22 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
                 return order;
             }
         }
-    }
 
+        private void ApplyQuantityDiscount(OrderItem item)
+        {
+            decimal discount = 0;
+
+            if (item.Quantity >= 4 && item.Quantity < 10)
+            {
+                discount = 0.10m;
+            }
+            else if (item.Quantity >= 10 && item.Quantity <= 20)
+            {
+                discount = 0.20m;
+            }
+
+            item.ApplyDiscount(discount);
+            Discount += item.Quantity * item.UnitPrice * discount;
+        }
+    }
 }

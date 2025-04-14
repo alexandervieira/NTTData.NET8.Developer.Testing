@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Common;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
 {
@@ -9,6 +9,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
         public string ProductName { get; private set; } = null!;
         public int Quantity { get; private set; }
         public decimal UnitPrice { get; private set; }
+        public decimal Discount { get; private set; } // Propriedade Discount adicionada
 
         // EF Core navigation property
         public Order Order { get; set; } = null!;
@@ -33,7 +34,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
 
         public decimal CalculateValue()
         {
-            return Quantity * UnitPrice;
+            return Quantity * UnitPrice * (1 - Discount); // Considera o desconto ao calcular o valor
         }
 
         public void AddUnits(int units)
@@ -46,10 +47,14 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
             Quantity = units;
         }
 
+        public void ApplyDiscount(decimal discountPercentage)
+        {
+            Discount = discountPercentage; // Armazena o valor do desconto
+        }
+
         public override bool IsValid()
         {
             return true;
         }
     }
-
 }

@@ -8,23 +8,27 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping.Payments
     {
         public void Configure(EntityTypeBuilder<Payment> builder)
         {
-            builder.HasKey(c => c.Id);
+            builder.HasKey(p => p.Id);
 
-            builder.Property(c => c.CardName)
+            builder.Property(p => p.CardName)
                 .IsRequired()
                 .HasColumnType("varchar(250)");
 
-            builder.Property(c => c.CardNumber)
+            builder.Property(p => p.CardNumber)
                 .IsRequired()
                 .HasColumnType("varchar(16)");
 
-            builder.Property(c => c.CardExpiration)
+            builder.Property(p => p.CardExpiration)
                 .IsRequired()
                 .HasColumnType("varchar(10)");
 
-            builder.Property(c => c.CardCvv)
+            builder.Property(p => p.CardCvv)
                 .IsRequired()
                 .HasColumnType("varchar(4)");
+
+            builder.Property(p => p.Amount)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
 
             // 1 : 1 => Payment : Transaction
             builder.HasOne(c => c.Transaction)

@@ -8,11 +8,19 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping.Sales
     {
         public void Configure(EntityTypeBuilder<OrderItem> builder)
         {
-            builder.HasKey(c => c.Id);
+            builder.HasKey(o => o.Id);
 
-            builder.Property(c => c.ProductName)
+            builder.Property(o => o.ProductName)
                 .IsRequired()
                 .HasColumnType("varchar(250)");
+
+            builder.Property(o => o.Discount)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
+            builder.Property(o => o.UnitPrice)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
 
             // 1 : N => Order : Payment
             builder.HasOne(c => c.Order)

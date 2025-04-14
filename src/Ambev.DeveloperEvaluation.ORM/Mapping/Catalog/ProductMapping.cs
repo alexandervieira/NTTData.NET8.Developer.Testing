@@ -18,6 +18,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping.Catalog
                 .IsRequired()
                 .HasColumnType("varchar(250)");
 
+            builder.Property(p => p.Price)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
             builder.Property(p => p.Image)                
                 .HasColumnType("varchar(250)");
 

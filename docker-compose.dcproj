@@ -16,5 +16,9 @@
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="src\Ambev.DeveloperEvaluation.Domain\Entities\Sales\NovoOrder.cs" />
+    <None Include="src\Ambev.DeveloperEvaluation.Domain\Entities\Sales\NovoOrderItem.cs" />
+    <None Include="tests\Ambev.DeveloperEvaluation.Unit\Domain\Entities\OrderItemTests.cs" />
+    <None Include="tests\Ambev.DeveloperEvaluation.Unit\Domain\Entities\OrderTests.cs" />
   </ItemGroup>
 </Project>
