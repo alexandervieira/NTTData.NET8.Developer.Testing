@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvoluation.Core.Messages;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Ambev.DeveloperEvaluation.Domain.Common;
 
@@ -9,7 +10,7 @@ public abstract class BaseEntity : IComparable<BaseEntity>
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
-    private List<Event> _notifications = null!;
+    private List<Event> _notifications = new List<Event>();
     public IReadOnlyCollection<Event> Notifications => _notifications.AsReadOnly();
 
     public BaseEntity()

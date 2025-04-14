@@ -59,13 +59,13 @@ public class DefaultContext : DbContext, IUnitOfWork
         {
             if (entry.State == EntityState.Added)
             {
-                entry.Property("CreatedAt").CurrentValue = DateTime.Now;
+                entry.Property("CreatedAt").CurrentValue = DateTime.UtcNow;
             }
 
             if (entry.State == EntityState.Modified)
             {
                 entry.Property("CreatedAt").IsModified = false;
-                entry.Property("UpdatedAt").CurrentValue = DateTime.Now;
+                entry.Property("UpdatedAt").CurrentValue = DateTime.UtcNow;
             }
         }
 
