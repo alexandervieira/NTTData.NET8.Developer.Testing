@@ -130,12 +130,135 @@ Consulte <a href="https://github.com/alexandervieira/repositorio-base/blob/maste
 
 ---
 
+## Estrutura do Projeto
+```
+src/
+├── Ambev.DeveloperEvaluation.Application/    # Application services, commands and queries
+│   ├── Catalog/
+│   ├── Sales/
+│   └── Payments/
+├── Ambev.DeveloperEvaluation.Domain/         # Domain entities and interfaces
+│   ├── Entities/
+│   ├── Interfaces/
+│   └── Services/
+├── Ambev.DeveloperEvaluation.Infrastructure/ # Infrastructure implementations
+│   ├── Data/
+│   ├── Repositories/
+│   └── Services/
+├── Ambev.DeveloperEvaluation.WebApi/         # API Controllers and configurations
+├── Ambev.DeveloperEvaluation.Common/         # Shared components and utilities
+└── tests/
+    ├── UnitTests/
+    └── IntegrationTests/
+```
+
 ### Toda a aplicação é baseada em uma solução única com X API's e uma aplicação web
 
 <p align="center">
     <!--<img alt="read before" src="https://user-images.githubusercontent.com/5068797/161202409-edcf2f38-0714-4de5-927d-1a02be4501ec.png" />-->
     <img alt="read before" src="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/blob/master/.doc/arquitetura-developer-evoluation.jpg" />
 </p>
+
+## Prerequisites
+- .NET 8 SDK
+- Docker Desktop
+- Visual Studio 2022 or VS Code
+
+## Setup & Running
+
+### 1. Database Setup
+Run PostgreSQL, MongoDB and Redis using Docker Compose:
+
+```bash
+docker-compose up -d
+```
+
+### 2. Database Migrations
+From the solution root directory:
+
+```bash
+# Create new migration
+dotnet ef migrations add InitialMigration --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
+
+# Apply migrations
+dotnet ef database update --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
+```
+
+### 3. Build and Run
+```bash
+# Restore dependencies
+dotnet restore
+
+# Build solution
+dotnet build
+
+# Run API
+cd src/Ambev.DeveloperEvaluation.WebApi
+dotnet run
+```
+
+The API will be available at:
+- HTTP: http://localhost:5119
+- HTTPS: https://localhost:7181
+- Swagger UI: https://localhost:7181/swagger
+
+### 4. Running Tests
+```bash
+# Run all tests
+dotnet test
+
+# Run specific test project
+dotnet test tests/Ambev.DeveloperEvaluation.UnitTests
+dotnet test tests/Ambev.DeveloperEvaluation.IntegrationTests
+```
+
+## Architecture Overview
+
+### Domain-Driven Design (DDD)
+- Bounded Contexts: Catalog, Sales, Payment
+- Rich domain models with business rules
+- Domain events for cross-context communication
+
+### CQRS Pattern
+- Commands: Handle state changes
+- Queries: Read-only operations
+- MediatR for command/query dispatching
+
+### Event-Driven Architecture
+- Domain events for business operations
+- Integration events between bounded contexts
+- Event handlers for side effects
+
+### Data Storage
+- PostgreSQL: Main transactional database
+- MongoDB: Product catalog and search
+- Redis: Caching and distributed locking
+
+## Business Rules
+- Quantity-based discounts:
+  - 4+ items: 10% discount
+  - 10-20 items: 20% discount
+  - Maximum 20 items per product
+  - No discounts for quantities below 4
+
+## API Documentation
+Available via Swagger UI when running the application.
+
+## Docker Support
+The solution includes Docker support with multi-stage builds and Docker Compose for local development.
+
+To build and run with Docker:
+
+```bash
+# Build Docker images
+docker-compose build
+
+# Run all services
+docker-compose up -d
+
+# Stop all services
+docker-compose down
+```
 
 ## Erros e solicitações de recursos
 Tem um bug ou uma solicitação de recurso? Leia primeiro as [diretrizes do problema](https://reponame/blob/master/CONTRIBUTING.md)  e pesquise os problemas existentes e encerrados. [abra um novo problema](https://github.com/alexandervieira/repositorio-base/issues).
