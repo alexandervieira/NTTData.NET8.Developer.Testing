@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
 using Ambev.DeveloperEvaluation.Application.Catalog.Services;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
@@ -29,30 +30,38 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             _productService = new ProductService(_productRepository, _stockService, _mapper);
         }
 
-        //[Fact(DisplayName = "Must return all products successfully")]
-        //public async Task ProductService_GetAll_MustReturnAllProductsSuccessfully()
-        //{
-        //    // Arrange
-        //    var products = new List<Product>
-        //    {
-        //        new Product("Cerveja", 10.0m, false)
-        //    };
-        //    var productsResponse = new List<ProductResponse>
-        //    {
-        //        new ProductResponse { Title = "Cerveja", Price = 10.0m }
-        //    };
+        [Fact(DisplayName = "Must return all products")]
+        public async Task ProductService_GetAll_MustReturnAllProducts()
+        {
+            // Arrange
+            var pageNumber = 1;
+            var pageSize = 10;
+            var query = "test";
+            var products = new List<Product>
+            {
+                new Product("Product 1", 10.0m, true),
+                new Product("Product 2", 20.0m, true)
+            };
 
-        //    _productRepository.GetAll().Returns(Task.FromResult<IEnumerable<Product>>(products));
-        //    _mapper.Map<IEnumerable<ProductResponse>>(products).Returns(productsResponse);
+            var paginatedProducts = new PaginatedList<Product>(products, products.Count, pageNumber, pageSize);
 
-        //    // Act
-        //    var resultado = await _productService.GetAll();
+            _productRepository.GetAll(pageNumber, pageSize, query).Returns(Task.FromResult(paginatedProducts));
+            _mapper.Map<PaginatedList<ProductResponse>>(paginatedProducts).Returns(new PaginatedList<ProductResponse>(
+                new List<ProductResponse>
+                {
+                    new ProductResponse { Title = "Product 1", Description = "Description 1", Price = 10.0m },
+                    new ProductResponse { Title = "Product 2", Description = "Description 2", Price = 20.0m }
+                }, products.Count, pageNumber, pageSize));
 
-        //    // Assert
-        //    resultado.Should().BeEquivalentTo(productsResponse);
-        //    await _productRepository.Received(1).GetAll();
-        //    _mapper.Received(1).Map<IEnumerable<ProductResponse>>(products);
-        //}
+            // Act
+            var result = await _productService.GetAll(pageNumber, pageSize, query);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Should().HaveCount(2);
+            result[0].Title.Should().Be("Product 1");
+            result[1].Title.Should().Be("Product 2");
+        }
 
         [Fact(DisplayName = "Must return products by category")]
         public async Task ProductService_GetByCategory_MustReturnProductsByCategory()
@@ -101,7 +110,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }
 
         [Fact(DisplayName = "Should retrieve all categories successfully")]
-        public async Task GetCategories_ShouldRetrieveAllCategories()
+        public async Task ProductService_GetCategories_ShouldRetrieveAllCategories()
         {
             // Arrange
             var categories = new List<Category> { new Category("Beverages", 1) };
@@ -120,7 +129,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }        
 
         [Fact(DisplayName = "Should add a product successfully")]
-        public async Task AddProduct_ShouldAddProductSuccessfully()
+        public async Task ProductService_AddProduct_ShouldAddProductSuccessfully()
         {
             // Arrange
             var category = new Category("Test Category", 1);
@@ -150,7 +159,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }       
 
         [Fact(DisplayName = "Should update a product successfully")]
-        public async Task UpdateProduct_ShouldUpdateProductSuccessfully()
+        public async Task ProductService_UpdateProduct_ShouldUpdateProductSuccessfully()
         {
             // Arrange
             var request = new UpdateProductRequest
@@ -214,7 +223,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }
 
         [Fact(DisplayName = "Should debit stock successfully")]
-        public async Task DebitStock_ShouldDebitStockSuccessfully()
+        public async Task ProductService_DebitStock_ShouldDebitStockSuccessfully()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -237,7 +246,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }
 
         [Fact(DisplayName = "Should throw exception when failing to debit stock")]
-        public async Task DebitStock_ShouldThrowExceptionWhenFailingToDebitStock()
+        public async Task ProductService_DebitStock_ShouldThrowExceptionWhenFailingToDebitStock()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -255,7 +264,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }
 
         [Fact(DisplayName = "Should replenish stock successfully")]
-        public async Task ReplenishStock_ShouldReplenishStockSuccessfully()
+        public async Task ProductService_ReplenishStock_ShouldReplenishStockSuccessfully()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -278,7 +287,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         }
 
         [Fact(DisplayName = "Should throw exception when failing to replenish stock")]
-        public async Task ReplenishStock_ShouldThrowExceptionWhenFailingToReplenishStock()
+        public async Task ProductService_ReplenishStock_ShouldThrowExceptionWhenFailingToReplenishStock()
         {
             // Arrange
             var id = Guid.NewGuid();

@@ -29,8 +29,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
             var source = _context.Orders
                 .AsNoTrackingWithIdentityResolution()
                 .Include(o => o.OrderItems)
-                .Where(o => o.OrderItems.Any(oi => EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")))
-                .OrderBy(o => o.OrderItems.FirstOrDefault(oi => EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")).ProductName)
+                .Where(o => o.OrderItems.Any(oi => 
+                            EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")))
+                .OrderBy(o => o.OrderItems.FirstOrDefault(oi => 
+                            EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")).ProductName)
                 .AsQueryable();
 
             return await PaginatedList<Order>.CreateAsync(source, pageNumber, pageSize);
@@ -47,7 +49,8 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
 
         public async Task<Order?> GetDraftOrderByCustomerId(Guid customerId)
         {
-            var order = await _context.Orders.FirstOrDefaultAsync(p => p.CustomerId == customerId && p.Status == OrderStatus.Draft);
+            var order = await _context.Orders
+                    .FirstOrDefaultAsync(p => p.CustomerId == customerId && p.Status == OrderStatus.Draft);
             if (order == null) return null;
 
             await _context.Entry(order)
