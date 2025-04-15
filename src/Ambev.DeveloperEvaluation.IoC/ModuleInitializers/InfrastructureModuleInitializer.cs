@@ -56,8 +56,11 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         builder.Services.AddScoped<IOrderQueries, OrderQueries>();
 
         builder.Services.AddScoped<IRequestHandler<AddOrderItemCommand, bool>, OrderCommandHandler>();
+        builder.Services.AddScoped<IRequestHandler<AddOrderItemsCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<UpdateOrderItemCommand, bool>, OrderCommandHandler>();
+        builder.Services.AddScoped<IRequestHandler<UpdateOrderItemsCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<DeleteOrderItemCommand, bool>, OrderCommandHandler>();
+        builder.Services.AddScoped<IRequestHandler<DeleteOrderItemUnitsCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<ApplyVoucherToOrderCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<StartOrderCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<FinalizeOrderCommand, bool>, OrderCommandHandler>();

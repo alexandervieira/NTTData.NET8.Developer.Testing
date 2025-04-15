@@ -6,6 +6,13 @@
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="FakeMediatorHandler.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="OrderProcessIntegrationTests.cs.bkp" />
+    <None Remove="OrderProcessIntegrationTests.cs.teste.bkp" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
