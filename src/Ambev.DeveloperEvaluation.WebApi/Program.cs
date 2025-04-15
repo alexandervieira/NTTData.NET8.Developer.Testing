@@ -42,8 +42,12 @@ public class Program
             
             builder.Services.AddMongoDb(builder.Configuration);
 
-            //var settings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
-            //builder.Services.AddSingleton<IMongoClient>(new MongoClient(settings.ConnectionString));
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration["Redis:Configuration"];
+                options.InstanceName = builder.Configuration["Redis:InstanceName"];
+            });
+
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
