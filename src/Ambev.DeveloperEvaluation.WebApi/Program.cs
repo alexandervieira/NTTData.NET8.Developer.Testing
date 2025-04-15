@@ -5,10 +5,14 @@ using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.ORM.Config;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Serilog;
+using YourAppNamespace.Extensions;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -35,6 +39,15 @@ public class Program
                     b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
                 )
             );
+            
+            builder.Services.AddMongoDb(builder.Configuration);
+
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = builder.Configuration["Redis:Configuration"];
+                options.InstanceName = builder.Configuration["Redis:InstanceName"];
+            });
+
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
@@ -52,8 +65,9 @@ public class Program
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-            var app = builder.Build();
-            app.UseMiddleware<ValidationExceptionMiddleware>();
+            var app = builder.Build();            
+
+            app.UseMiddleware<ValidationExceptionMiddleware>();            
 
             if (app.Environment.IsDevelopment())
             {
@@ -68,7 +82,7 @@ public class Program
 
             app.UseBasicHealthChecks();
 
-            app.MapControllers();
+            app.MapControllers();           
 
             app.Run();
         }

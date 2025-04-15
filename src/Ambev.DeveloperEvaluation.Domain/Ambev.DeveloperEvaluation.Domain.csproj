@@ -6,11 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Enums\" />
     <Folder Include="Exceptions\" />
-    <Folder Include="Repositories\" />
-    <Folder Include="Events\" />
-    <Folder Include="ValueObjects\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ambev.DeveloperEvaluation.Common\Ambev.DeveloperEvaluation.Common.csproj" />
+    <ProjectReference Include="..\Ambev.DeveloperEvoluation.Core\Ambev.DeveloperEvoluation.Core.csproj" />
   </ItemGroup>
 
 </Project>

@@ -10,10 +10,15 @@
     <DockerServiceName>ambev.developerevaluation.webapi</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="backup\LoggingExtension.cs.bkp" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="src\Ambev.DeveloperEvaluation.Domain\Entities\Sales\NovoOrder.cs" />
+    <None Include="src\Ambev.DeveloperEvaluation.Domain\Entities\Sales\NovoOrderItem.cs" />
+    <None Include="tests\Ambev.DeveloperEvaluation.Unit\Domain\Entities\OrderItemTests.cs" />
+    <None Include="tests\Ambev.DeveloperEvaluation.Unit\Domain\Entities\OrderTests.cs" />
   </ItemGroup>
 </Project>

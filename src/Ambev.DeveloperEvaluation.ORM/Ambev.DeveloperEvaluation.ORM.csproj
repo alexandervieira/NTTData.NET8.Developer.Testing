@@ -11,6 +11,9 @@
 	  <None Remove="src\**" />
 	</ItemGroup>
 	<ItemGroup>
+	  <Compile Remove="Context\SalesContext.cs" />
+	</ItemGroup>
+	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -21,6 +24,8 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.15" />
+		<PackageReference Include="MongoDB.Driver" Version="2.19.0" />
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
 	</ItemGroup>
 	<ItemGroup>
