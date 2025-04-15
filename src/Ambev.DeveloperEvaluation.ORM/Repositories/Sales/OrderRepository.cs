@@ -1,4 +1,5 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
+﻿using Ambev.DeveloperEvaluation.Domain.Common;
+using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
 using Ambev.DeveloperEvaluation.Domain.Enums.Sales;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
 using Ambev.DeveloperEvoluation.Core.Data;
@@ -20,6 +21,19 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
         public async Task<Order?> GetById(Guid id)
         {
             return await _context.Orders.FindAsync(id);
+        }
+
+        public async Task<PaginatedList<Order>> GetAll(int pageNumber, int pageSize, string query)
+        {
+            string newquery = query != null ? query.ToLower() : string.Empty;
+            var source = _context.Orders
+                .AsNoTrackingWithIdentityResolution()
+                .Include(o => o.OrderItems)
+                .Where(o => o.OrderItems.Any(oi => EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")))
+                .OrderBy(o => o.OrderItems.FirstOrDefault(oi => EF.Functions.Like(oi.ProductName.ToLower(), $"%{newquery}%")).ProductName)
+                .AsQueryable();
+
+            return await PaginatedList<Order>.CreateAsync(source, pageNumber, pageSize);
         }
 
         public async Task<IEnumerable<Order>> GetListByCustomerId(Guid customerId)
@@ -104,6 +118,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Sales
         {
             _context.Dispose();
         }
+       
     }
 
 }

@@ -1,5 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Sales.Events;
 using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
+using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvoluation.Core.DomainObjects.DTOs;
@@ -13,8 +14,11 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
 {
     public class OrderCommandHandler :
     IRequestHandler<AddOrderItemCommand, bool>,
+    IRequestHandler<AddOrderItemsCommand, bool>,
+    IRequestHandler<UpdateOrderItemsCommand, bool>,
     IRequestHandler<UpdateOrderItemCommand, bool>,
-    IRequestHandler<RemoveOrderItemCommand, bool>,
+    IRequestHandler<DeleteOrderItemCommand, bool>,
+    IRequestHandler<DeleteOrderItemUnitsCommand, bool>,
     IRequestHandler<ApplyVoucherToOrderCommand, bool>,
     IRequestHandler<StartOrderCommand, bool>,
     IRequestHandler<FinalizeOrderCommand, bool>,
@@ -22,12 +26,65 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
     IRequestHandler<CancelOrderProcessingCommand, bool>
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly IProductRepository _productRepository;
         private readonly IMediatorHandler _mediatorHandler;
 
-        public OrderCommandHandler(IOrderRepository orderRepository, IMediatorHandler mediatorHandler)
+        public OrderCommandHandler(IOrderRepository orderRepository, IProductRepository productRepository, IMediatorHandler mediatorHandler)
         {
             _orderRepository = orderRepository;
+            _productRepository = productRepository;
             _mediatorHandler = mediatorHandler;
+        }
+
+        public async Task<bool> Handle(AddOrderItemsCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidateCommand(message)) return false;
+
+            foreach(var messageItem in message.Items)
+            {
+                var product = await _productRepository.GetById(messageItem.ProductId);
+
+                if (product == null)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Product not found!"));
+                    return false;
+                }
+
+                if (product.QuantityStock < messageItem.Quantity)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Insufficient product quantity!"));
+                    return false;
+                }
+
+                var orderItem = new OrderItem(product.Id, product.Title, messageItem.Quantity, product.Price);
+                var order = _orderRepository.GetDraftOrderByCustomerId(message.CustomerId).Result;
+                if (order == null)
+                {
+                    order = Order.OrderFactory.NewDraftOrder(message.CustomerId);
+                    order.AddItem(orderItem);
+                    _orderRepository.Add(order);
+                    order.AddEvent(new OrderDraftStartedEvent(message.CustomerId, product.Id));
+                }
+                else
+                {
+                    var itemExists = order.HasOrderItem(orderItem);
+                    order.AddItem(orderItem);
+
+                    var existingOrderItem = order.OrderItems.FirstOrDefault(p => p.ProductId == orderItem.ProductId);
+                    if (itemExists && existingOrderItem != null)
+                    {
+                        _orderRepository.UpdateItem(existingOrderItem);
+                    }
+                    else
+                    {
+                        _orderRepository.AddItem(orderItem);
+                    }
+                }
+
+                order.AddEvent(new OrderItemAddedEvent(order.CustomerId, order.Id, product.Id, product.Title, product.Price, messageItem.Quantity));
+            }
+            
+            return await _orderRepository.UnitOfWork.CommitAsync();
         }
 
         public async Task<bool> Handle(AddOrderItemCommand message, CancellationToken cancellationToken)
@@ -65,6 +122,55 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             return await _orderRepository.UnitOfWork.CommitAsync();
         }
 
+        public async Task<bool> Handle(UpdateOrderItemsCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidateCommand(message)) return false;
+
+            foreach (var messageItem in message.Items)
+            {
+                var product = await _productRepository.GetById(messageItem.ProductId);
+
+                if (product == null)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Product not found!"));
+                    return false;
+                }
+
+                if (product.QuantityStock < messageItem.Quantity)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Insufficient product quantity!"));
+                    return false;
+                }
+
+                var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
+                if (order == null)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order not found!"));
+                    return false;
+                }
+
+                var item = await _orderRepository.GetItemByOrder(order.Id, messageItem.ProductId);
+                if (item == null)
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order item not found!"));
+                    return false;
+                }
+                if (!order.HasOrderItem(item))
+                {
+                    await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order item not found!"));
+                    return false;
+                }
+
+                order.UpdateUnits(item, messageItem.Quantity);
+                order.AddEvent(new OrderProductUpdatedEvent(message.CustomerId, order.Id, messageItem.ProductId, messageItem.Quantity));
+
+                _orderRepository.UpdateItem(item);
+                _orderRepository.Update(order);
+            }
+            
+            return await _orderRepository.UnitOfWork.CommitAsync();
+        }
+
         public async Task<bool> Handle(UpdateOrderItemCommand message, CancellationToken cancellationToken)
         {
             if (!ValidateCommand(message)) return false;
@@ -97,7 +203,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             return await _orderRepository.UnitOfWork.CommitAsync();
         }
 
-        public async Task<bool> Handle(RemoveOrderItemCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(DeleteOrderItemCommand message, CancellationToken cancellationToken)
         {
             if (!ValidateCommand(message)) return false;
 
@@ -127,6 +233,47 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             _orderRepository.RemoveItem(item);
             _orderRepository.Update(order);
 
+            return await _orderRepository.UnitOfWork.CommitAsync();
+        }
+
+        public async Task<bool> Handle(DeleteOrderItemUnitsCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidateCommand(message)) return false;
+
+            var order = await _orderRepository.GetDraftOrderByCustomerId(message.CustomerId);
+            if (order == null)
+            {
+                await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order not found!"));
+                return false;
+            }
+
+            var item = await _orderRepository.GetItemByOrder(order.Id, message.ProductId);
+
+            if (item != null && !order.HasOrderItem(item))
+            {
+                await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order item not found!"));
+                return false;
+            }
+            if (item == null)
+            {
+                await _mediatorHandler.PublishNotification(new DomainNotification("order", "Order item not found!"));
+                return false;
+            }
+
+            item.DebitUnits(message.Quantity);
+            if (item.Quantity <= 0)
+            {
+                order.RemoveItem(item);
+                _orderRepository.RemoveItem(item);
+                order.AddEvent(new OrderProductRemovedEvent(message.CustomerId, order.Id, message.ProductId));
+            }
+            else
+            {
+                order.UpdateItem(item);
+                _orderRepository.Update(order);
+                order.AddEvent(new OrderProductUpdatedEvent(message.CustomerId, order.Id, message.ProductId, item.Quantity));
+            }
+            
             return await _orderRepository.UnitOfWork.CommitAsync();
         }
 
@@ -229,7 +376,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             order.SetAsDraft();
 
             return await _orderRepository.UnitOfWork.CommitAsync();
-        }
+        }       
 
         private bool ValidateCommand(Command message)
         {

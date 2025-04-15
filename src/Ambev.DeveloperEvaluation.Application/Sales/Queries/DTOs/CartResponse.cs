@@ -8,7 +8,6 @@
         public decimal TotalValue { get; set; }
         public decimal DiscountValue { get; set; }
         public string VoucherCode { get; set; } = null!;
-
         public List<CartItemResponse> Items { get; set; } = new List<CartItemResponse>();
         public CartPaymentResponse Payment { get; set; } = null!;
     }

@@ -20,7 +20,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
         public Dimensions? Dimensions { get; private set; }
         public virtual Category Category { get; set; } = null!;        
 
-        protected Product() { }
+        public Product() { }
 
         public Product(string title, decimal price, bool active)
             : this(title, "Minha descrição", active, price, Guid.NewGuid(), string.Empty, new Rating(0,0), new Dimensions(0, 0, 0)) { }

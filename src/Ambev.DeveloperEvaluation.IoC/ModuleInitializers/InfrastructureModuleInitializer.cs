@@ -13,6 +13,7 @@ using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Payments;
 using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.ORM.Context;
 using Ambev.DeveloperEvaluation.ORM.ExternalServices.AntiCorruption;
 using Ambev.DeveloperEvaluation.ORM.ExternalServices.AntiCorruption.Interfaces;
 using Ambev.DeveloperEvaluation.ORM.Repositories;
@@ -34,8 +35,10 @@ public class InfrastructureModuleInitializer : IModuleInitializer
     {        
         builder.Services.AddScoped<IMediatorHandler, MediatorHandler>();
      
-        builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());        
-        
+        builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());
+
+        builder.Services.AddScoped<IProductContext, ProductContext>();
+
         builder.Services.AddScoped<IUserRepository, UserRepository>();
 
         #region Catalog
@@ -54,7 +57,7 @@ public class InfrastructureModuleInitializer : IModuleInitializer
 
         builder.Services.AddScoped<IRequestHandler<AddOrderItemCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<UpdateOrderItemCommand, bool>, OrderCommandHandler>();
-        builder.Services.AddScoped<IRequestHandler<RemoveOrderItemCommand, bool>, OrderCommandHandler>();
+        builder.Services.AddScoped<IRequestHandler<DeleteOrderItemCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<ApplyVoucherToOrderCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<StartOrderCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<FinalizeOrderCommand, bool>, OrderCommandHandler>();

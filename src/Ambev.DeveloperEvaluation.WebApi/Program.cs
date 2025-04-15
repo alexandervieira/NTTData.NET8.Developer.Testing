@@ -5,10 +5,14 @@ using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
+using Ambev.DeveloperEvaluation.ORM.Config;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Serilog;
+using YourAppNamespace.Extensions;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -35,7 +39,12 @@ public class Program
                     b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
                 )
             );
-           
+            
+            builder.Services.AddMongoDb(builder.Configuration);
+
+            //var settings = builder.Configuration.GetSection("MongoDBSettings").Get<MongoDBSettings>();
+            //builder.Services.AddSingleton<IMongoClient>(new MongoClient(settings.ConnectionString));
+
             builder.Services.AddJwtAuthentication(builder.Configuration);
 
             builder.RegisterDependencies();
@@ -52,7 +61,7 @@ public class Program
 
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
-            var app = builder.Build();
+            var app = builder.Build();            
 
             app.UseMiddleware<ValidationExceptionMiddleware>();            
 
@@ -69,7 +78,7 @@ public class Program
 
             app.UseBasicHealthChecks();
 
-            app.MapControllers();
+            app.MapControllers();           
 
             app.Run();
         }

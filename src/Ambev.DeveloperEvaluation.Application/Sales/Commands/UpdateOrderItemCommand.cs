@@ -41,8 +41,8 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
                 .WithMessage("The minimum quantity for an item is 1");
 
             RuleFor(c => c.Quantity)
-                .LessThan(15)
-                .WithMessage("The maximum quantity for an item is 15");
+                .LessThan(20)
+                .WithMessage("The maximum quantity for an item is 20");
         }
     }
 

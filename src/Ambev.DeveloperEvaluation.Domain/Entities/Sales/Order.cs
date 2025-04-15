@@ -59,6 +59,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
 
         public void CalculateOrderValue()
         {
+            
             TotalValue = OrderItems.Sum(item => item.CalculateValue());
             CalculateTotalDiscount();
         }

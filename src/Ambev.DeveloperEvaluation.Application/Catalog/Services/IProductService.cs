@@ -5,6 +5,7 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
 {
     public interface IProductService : IDisposable
     {
+        Task<PaginatedList<ProductResponse>> GetAllAsync(int pageNumber, int pageSize, string query, string order);
         Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string query);
         Task<ProductResponse> GetById(Guid id);
         Task<IEnumerable<ProductResponse>> GetByCategory(int code);

@@ -31,7 +31,33 @@ public class CatalogsController : BaseController
         _mapper = mapper;
         _productService = productService;
         _mediatorHandler = mediatorHandler;
-    }    
+    }
+
+    [HttpGet("getproducts")]
+    [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string query = null, [FromQuery] string order = "title asc")
+    {
+        var response = await _productService.GetAllAsync(pageNumber, pageSize, query, order);
+
+        if (response == null || !response.Any())
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Products not found."
+            });
+
+        return Ok(new PaginatedResponse<ProductResponse>
+        {
+            Success = true,
+            Message = "Products retrieved successfully",
+            Data = response,
+            CurrentPage = pageNumber,
+            TotalPages = response.TotalPages,
+            TotalCount = response.TotalCount
+        });
+    }
 
     /// <summary>
     /// Retrieves products

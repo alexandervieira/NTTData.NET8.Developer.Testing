@@ -3,27 +3,29 @@ using FluentValidation;
 
 namespace Ambev.DeveloperEvaluation.Application.Sales.Commands
 {
-    public class RemoveOrderItemCommand : Command
+    public class DeleteOrderItemUnitsCommand : Command
     {
         public Guid CustomerId { get; private set; }
         public Guid ProductId { get; private set; }
+        public int Quantity { get; private set; }
 
-        public RemoveOrderItemCommand(Guid customerId, Guid productId)
+        public DeleteOrderItemUnitsCommand(Guid customerId, Guid productId, int quantity)
         {
             CustomerId = customerId;
             ProductId = productId;
+            Quantity = quantity;
         }
 
         public override bool IsValid()
         {
-            ValidationResult = new RemoveOrderItemValidation().Validate(this);
+            ValidationResult = new DeleteOrderItemUnitsValidation().Validate(this);
             return ValidationResult.IsValid;
         }
     }
 
-    public class RemoveOrderItemValidation : AbstractValidator<RemoveOrderItemCommand>
+    public class DeleteOrderItemUnitsValidation : AbstractValidator<DeleteOrderItemUnitsCommand>
     {
-        public RemoveOrderItemValidation()
+        public DeleteOrderItemUnitsValidation()
         {
             RuleFor(c => c.CustomerId)
                 .NotEqual(Guid.Empty)

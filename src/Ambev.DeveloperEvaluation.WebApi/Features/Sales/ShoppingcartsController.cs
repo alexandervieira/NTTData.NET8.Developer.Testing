@@ -36,11 +36,37 @@ public class ShoppingcartsController : BaseController
         _mediatorHandler = mediatorHandler;
     }
 
+    [HttpGet]
+    [ProducesResponseType(typeof(PaginatedResponse<CartResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCarts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string query = null)
+    {
+        var response = await _orderQueries.GetAll(pageNumber, pageSize, query);
+
+        if (response == null || !response.Any())
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Cart not found."
+            });
+
+        return Ok(new PaginatedResponse<CartResponse>
+        {
+            Success = true,
+            Message = "Carts retrieved successfully",
+            Data = response,
+            CurrentPage = response.CurrentPage,
+            TotalPages = response.TotalPages,
+            TotalCount = response.TotalCount
+        });
+    }
+
     /// <summary>
     /// Retrieves shoppingcarts
     /// </summary>    
     /// <returns>The shoppingcarts if found</returns>
-    [HttpGet("my-cart/{customerId}")]
+    [HttpGet("{customerId}")]
     [ProducesResponseType(typeof(ApiResponseWithData<CartResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
@@ -58,11 +84,155 @@ public class ShoppingcartsController : BaseController
         });
     }
 
-    [HttpPost("{id}/add-item/{quantity}")]
+    [HttpPost]
+    [ProducesResponseType(typeof(ApiResponseWithData<AddUpdateOrderResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AddItems([FromBody] AddUpdateOrderRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
+        if (request == null)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Request body cannot be null."
+            });
+
+        var validator = new AddUpdateOrderRequestValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);        
+
+        var command = new AddOrderItemsCommand(request.CustomerId, request.Items);
+
+        var result = await _mediatorHandler.SendCommand(command);
+        if (!result)
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Failed to add item to cart."
+            });
+        }
+
+        var cartResponse = await _orderQueries.GetCustomerCart(request.CustomerId);
+        if (cartResponse == null)
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Cart not found."
+            });
+        cartResponse.CustomerId = request.CustomerId;
+        cartResponse.Items = request.Items.Select(item => new CartItemResponse
+        {
+            ProductId = item.ProductId,            
+            Quantity = item.Quantity
+           
+        }).ToList();
+
+        var OrderResponse = new AddUpdateOrderResponse
+        {
+            CustomerId = cartResponse.CustomerId,           
+            OrderId = cartResponse.OrderId,           
+            Items = cartResponse.Items.Select(item => new AddUpdateOrderItemsResponse
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity               
+            }).ToList(),
+        };
+
+        return Created(string.Empty, new ApiResponseWithData<AddUpdateOrderResponse>
+        {
+            Success = true,
+            Message = "Item added successfully",
+            Data = OrderResponse
+        });
+      
+    }
+
+    [HttpPut]
+    [ProducesResponseType(typeof(ApiResponseWithData<AddUpdateOrderResponse>), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UpdateItems([FromBody] AddUpdateOrderRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
+        if (request == null)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Request body cannot be null."
+            });
+
+        var validator = new AddUpdateOrderRequestValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        var command = new UpdateOrderItemsCommand(request.CustomerId, request.Items);
+
+        var result = await _mediatorHandler.SendCommand(command);
+        if (!result)
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Failed to add item to cart."
+            });
+        }
+
+        var cartResponse = await _orderQueries.GetCustomerCart(request.CustomerId);
+        if (cartResponse == null)
+            return NotFound(new ApiResponse
+            {
+                Success = false,
+                Message = "Cart not found."
+            });
+        cartResponse.CustomerId = request.CustomerId;
+        cartResponse.Items = request.Items.Select(item => new CartItemResponse
+        {
+            ProductId = item.ProductId,
+            Quantity = item.Quantity
+
+        }).ToList();
+
+        var OrderResponse = new AddUpdateOrderResponse
+        {
+            CustomerId = cartResponse.CustomerId,
+            OrderId = cartResponse.OrderId,
+            Items = cartResponse.Items.Select(item => new AddUpdateOrderItemsResponse
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity
+            }).ToList(),
+        };
+
+        return Created(string.Empty, new ApiResponseWithData<AddUpdateOrderResponse>
+        {
+            Success = true,
+            Message = "Item added successfully",
+            Data = OrderResponse
+        });
+
+    }
+
+    [HttpPost("{productId}/add-item/{quantity}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> AddItem([FromRoute] Guid id, [FromRoute] int quantity, CancellationToken cancellationToken)
+    public async Task<IActionResult> AddItem([FromRoute] Guid productId, [FromRoute] int quantity, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ApiResponse
@@ -71,7 +241,7 @@ public class ShoppingcartsController : BaseController
                 Message = "Model state is invalid."
             });
 
-        var request = new ItemRequest(id, quantity);
+        var request = new ItemRequest(productId, quantity);
 
         var validator = new ItemRequestValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -117,11 +287,11 @@ public class ShoppingcartsController : BaseController
         });
     }
 
-    [HttpPut("{id}/update-item/{quantity}")]
+    [HttpPut("{productId}/update-item/{quantity}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> UpdateItem([FromRoute] Guid id, [FromRoute] int quantity, CancellationToken cancellationToken)
+    public async Task<IActionResult> UpdateItem([FromRoute] Guid productId, [FromRoute] int quantity, CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
             return BadRequest(new ApiResponse
@@ -129,7 +299,7 @@ public class ShoppingcartsController : BaseController
                 Success = false,
                 Message = "Model state is invalid."
             });
-        var request = new ItemRequest(id, quantity);
+        var request = new ItemRequest(productId, quantity);
 
         if (request == null)
             return BadRequest(new ApiResponse
@@ -144,13 +314,13 @@ public class ShoppingcartsController : BaseController
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var response = await _productService.GetById(id);
+        var response = await _productService.GetById(productId);
 
         if (response == null)
             return NotFound(new ApiResponse
             {
                 Success = false,
-                Message = $"Product with ID {id} not found."
+                Message = $"Product with ID {productId} not found."
             });
 
         var command = new UpdateOrderItemCommand(GetCurrentUserIdTeste(), response.Id, request.Quantity);
@@ -172,7 +342,47 @@ public class ShoppingcartsController : BaseController
         });
     }
 
-    [HttpDelete("delete-item/{id}")]
+    [HttpDelete("debit-units")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteOrderItemUnits([FromBody] DeleteOrderItemUnitsRequest request, CancellationToken cancellationToken)
+    {
+        
+        var validator = new DeleteOrderItemUnitsValidator();
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult.Errors);
+
+        if(request == null)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Request body cannot be null."
+            });
+
+        var command = new DeleteOrderItemUnitsCommand(request.CustomerId, request.ProductId, request.Quantity);
+        
+        var result = await _mediatorHandler.SendCommand(command);
+
+        if (!result)
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Failed to delete units from cart."
+            });
+        }
+
+        return Ok(new ApiResponse
+        {
+            Success = true,
+            Message = "Units deleted successfully"
+        });
+    }
+
+    [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
@@ -192,7 +402,7 @@ public class ShoppingcartsController : BaseController
                 Success = false,
                 Message = $"Product with ID {id} not found."
             });
-        var command = new RemoveOrderItemCommand(GetCurrentUserIdTeste(), id);
+        var command = new DeleteOrderItemCommand(GetCurrentUserIdTeste(), id);
         var result = await _mediatorHandler.SendCommand(command);
 
         if (!result)

@@ -1,21 +1,58 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
+using Ambev.DeveloperEvaluation.ORM.Context;
 using Ambev.DeveloperEvoluation.Core.Data;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 {
     public class ProductRepository : IProductRepository
     {
-        private readonly DefaultContext _context;        
-        public ProductRepository(DefaultContext context)
+        private readonly DefaultContext _context;
+        private readonly IProductContext _mongoContext;
+        
+        public ProductRepository(DefaultContext context, IProductContext ctx)
         {
             _context = context;
+            _mongoContext = ctx;
         }
 
-        public IUnitOfWork UnitOfWork => _context;
+        public IUnitOfWork UnitOfWork => _context;       
+
+        public async Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string query, string order)
+        {
+            var filter = Builders<Product>.Filter.Empty;
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                // Filtro com regex (LIKE)
+                filter = Builders<Product>.Filter.Or(
+                    Builders<Product>.Filter.Regex(p => p.Title, new BsonRegularExpression(query, "i")),
+                    Builders<Product>.Filter.Regex(p => p.Description, new BsonRegularExpression(query, "i"))
+                );
+            }
+
+            // Ordenação
+            var sort = Builders<Product>.Sort.Ascending(order);
+            if (order.Contains("desc", StringComparison.OrdinalIgnoreCase))
+            {
+                sort = Builders<Product>.Sort.Descending(order.Replace(" desc", "", StringComparison.OrdinalIgnoreCase));
+            }
+
+            var products = await _mongoContext.Products.Find(filter)
+                                        .Sort(sort)
+                                        .Skip((pageNumber - 1) * pageSize)
+                                        .Limit(pageSize)
+                                        .ToListAsync();
+
+            var count = await _mongoContext.Products.CountDocumentsAsync(filter);
+
+            return new PaginatedList<Product>(products, (int)count, pageNumber, pageSize);
+        }
+
 
         public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query)
         {
@@ -93,14 +130,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
         }
 
         public async Task<IEnumerable<Product>> GetByCategoryName(string categoryName)
-        {
-            //var result = await _context.Products
-            //    .Include(p => p.Category)
-            //    .AsNoTracking()
-            //    .Where(p => p.Category.Name.ToUpper().Equals(categoryName.ToUpper()))
-            //    .ToListAsync();
-            //return result;
-
+        {           
             string query = categoryName != null ? categoryName.ToLower() : string.Empty;
             var catalogQuery = _context.Products.AsQueryable();
             var source = catalogQuery.AsNoTrackingWithIdentityResolution()
@@ -114,7 +144,6 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
         {
             _context.Dispose();
         }
-
         
     }
     

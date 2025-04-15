@@ -33,8 +33,13 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Sales
         }
 
         public decimal CalculateValue()
-        {
+        {           
             return Quantity * UnitPrice * (1 - Discount); // Considera o desconto ao calcular o valor
+        }
+
+        public void DebitUnits(int units)
+        {
+            Quantity -= units;
         }
 
         public void AddUnits(int units)

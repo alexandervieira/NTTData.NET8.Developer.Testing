@@ -1,4 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Sales.Queries.DTOs;
+using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Enums.Sales;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
 
@@ -11,6 +12,44 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Queries
         public OrderQueries(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
+        }
+
+        public async Task<PaginatedList<CartResponse>> GetAll(int pageNumber, int pageSize, string query)
+        {
+            var response = await _orderRepository.GetAll(pageNumber, pageSize, query);
+            if (response == null) return null;
+            var cartViews = new List<CartResponse>();
+            foreach (var order in response)
+            {
+                var cart = new CartResponse
+                {
+                    CustomerId = order.CustomerId,
+                    TotalValue = order.TotalValue,
+                    OrderId = order.Id,
+                    DiscountValue = order.Discount,
+                    SubTotal = order.Discount + order.TotalValue
+                };
+
+                if (order.VoucherId != null)
+                {
+                    cart.VoucherCode = order.Voucher.Code;
+                }
+
+                foreach (var item in order.OrderItems)
+                {
+                    cart.Items.Add(new CartItemResponse
+                    {
+                        ProductId = item.ProductId,
+                        ProductName = item.ProductName,
+                        Quantity = item.Quantity,
+                        UnitPrice = item.UnitPrice,
+                        TotalPrice = item.UnitPrice * item.Quantity
+                    });
+                }
+
+                cartViews.Add(cart);
+            }
+            return new PaginatedList<CartResponse>(cartViews, response.TotalCount, pageNumber, pageSize);
         }
 
         public async Task<CartResponse> GetCustomerCart(Guid customerId)

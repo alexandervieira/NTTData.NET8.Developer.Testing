@@ -12,7 +12,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
         // EF Relation
         public virtual ICollection<Product>? Products { get; set; }
 
-        protected Category() { }
+        public Category() { }
 
         public Category(string name, int code)
         {
