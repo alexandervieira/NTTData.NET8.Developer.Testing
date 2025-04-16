@@ -1,4 +1,4 @@
 ﻿[*.cs]
 
-# IDE0290: Use primary constructor
-csharp_style_prefer_primary_constructors = false
+# CS8603: Possível retorno de referência nula.
+dotnet_diagnostic.CS8603.severity = silent

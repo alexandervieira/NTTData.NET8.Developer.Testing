@@ -24,10 +24,12 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         public ProductServiceTests()
         {
             _mapper = Substitute.For<IMapper>();
+            _unitOfWork.CommitAsync().Returns(Task.FromResult(true));
             _productRepository = Substitute.For<IProductRepository>();
             _productRepository.UnitOfWork.Returns(_unitOfWork);            
             _stockService = Substitute.For<IStockService>();            
-            _productService = new ProductService(_productRepository, _stockService, _mapper);
+            _productService = new ProductService(_productRepository, _stockService, _mapper);           
+            
         }
 
         [Fact(DisplayName = "Must return all products")]
@@ -186,7 +188,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             var height = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Height : 0;
             var width = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Width : 0;
             var depth = updatedProduct.Dimensions != null ? updatedProduct.Dimensions.Depth : 0;
-
+                        
             _mapper.Map<Product>(request).Returns(product);
             _productRepository.UpdateProduct(product).Returns(Task.FromResult(updatedProduct));
             _mapper.Map<ProductResponse>(updatedProduct).Returns(new ProductResponse

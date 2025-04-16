@@ -13,6 +13,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
         Task<IEnumerable<Product>> GetByCategoryName(string categoryName);
         Task<IEnumerable<Category>> GetCategories();
 
+        Product UpdateDetach(Product product);
         Task<Product> AddProduct(Product product);
         Task<Product> UpdateProduct(Product product);
         void DeleteProduct(Guid id);

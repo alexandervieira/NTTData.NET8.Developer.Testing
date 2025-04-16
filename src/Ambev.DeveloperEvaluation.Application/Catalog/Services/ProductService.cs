@@ -52,7 +52,7 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
                 throw new ArgumentNullException(nameof(product));            
 
             var model = await _productRepository.AddProduct(product);
-            if (model == null)
+            if (model == null && !await _productRepository.UnitOfWork.CommitAsync())
             {
                 throw new DomainException("Failed to add product.");
             }
@@ -65,10 +65,12 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
         {
             var product = _mapper.Map<Product>(request);
             var model = await _productRepository.UpdateProduct(product);
-            if (model == null)
+
+            if (model == null || !await _productRepository.UnitOfWork.CommitAsync())
             {
                 throw new DomainException("Failed to update product.");
             }
+
             var response = _mapper.Map<ProductResponse>(model);
             return response;
         }
@@ -121,7 +123,7 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
                 throw new ArgumentNullException(nameof(category));
 
             var model = await _productRepository.AddCategory(category);
-            if (model == null)
+            if (model == null || !await _productRepository.UnitOfWork.CommitAsync())
             {
                 throw new DomainException("Failed to add category.");
             }
@@ -136,7 +138,7 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
                 throw new ArgumentNullException(nameof(category));
 
             var model = await _productRepository.UpdateCategory(category);
-            if (model == null)
+            if (model == null || !await _productRepository.UnitOfWork.CommitAsync())
             {
                 throw new DomainException("Failed to update category.");
             }

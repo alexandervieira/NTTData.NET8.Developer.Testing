@@ -66,11 +66,17 @@ public class InfrastructureModuleInitializer : IModuleInitializer
         builder.Services.AddScoped<IRequestHandler<FinalizeOrderCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<CancelOrderProcessingCommand, bool>, OrderCommandHandler>();
         builder.Services.AddScoped<IRequestHandler<CancelOrderProcessingAndRestockCommand, bool>, OrderCommandHandler>();
-
+        
+        builder.Services.AddScoped<INotificationHandler<OrderItemAddedEvent>, OrderEventHandler>();
         builder.Services.AddScoped<INotificationHandler<OrderDraftStartedEvent>, OrderEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<OrderProductAddedEvent>, OrderEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<OrderProductRemovedEvent>, OrderEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<OrderProductUpdatedEvent>, OrderEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<VoucherAppliedToOrderEvent>, OrderEventHandler>();
+
         builder.Services.AddScoped<INotificationHandler<OrderStockRejectedEvent>, OrderEventHandler>();
-        builder.Services.AddScoped<INotificationHandler<OrderPaymentCompletedEvent>, OrderEventHandler>();
         builder.Services.AddScoped<INotificationHandler<OrderPaymentRejectedEvent>, OrderEventHandler>();
+        builder.Services.AddScoped<INotificationHandler<OrderPaymentCompletedEvent>, OrderEventHandler>();
         #endregion
 
         #region Payments
@@ -82,6 +88,8 @@ public class InfrastructureModuleInitializer : IModuleInitializer
 
         builder.Services.AddScoped<INotificationHandler<OrderStockConfirmedEvent>, PaymentEventHandler>();
         #endregion
+
+
 
     }
 }

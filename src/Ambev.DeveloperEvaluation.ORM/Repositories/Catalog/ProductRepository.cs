@@ -9,18 +9,16 @@ using MongoDB.Driver;
 
 namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 {
-    public class ProductRepository : IProductRepository
-    {
-        private readonly DefaultContext _context;
+    public class ProductRepository : BaseRepository<Product>, IProductRepository
+    {        
         private readonly IProductContext _mongoContext;
         
-        public ProductRepository(DefaultContext context, IProductContext ctx)
-        {
-            _context = context;
-            _mongoContext = ctx;
+        public ProductRepository(DefaultContext context, IProductContext ctx) : base(context)
+        {            
+            _mongoContext = ctx;          
         }
 
-        public IUnitOfWork UnitOfWork => _context;       
+        public IUnitOfWork UnitOfWork => (DefaultContext)_context;
 
         public async Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string query, string order)
         {
@@ -57,7 +55,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
         public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query)
         {
             string newquery = query != null ? query.ToLower() : string.Empty;
-            var catalogQuery = _context.Products.AsQueryable();
+            var catalogQuery = _dbSet.AsQueryable();
 
             var source = catalogQuery.AsNoTrackingWithIdentityResolution()
                                             .Where(x => EF.Functions.Like(x.Title.ToLower(), $"%{newquery}%"))
@@ -69,9 +67,9 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 
         public async Task<Product?> GetById(Guid id)
         {
-            var product = await _context.Products
+            var product = await _dbSet
                 .Include(p => p.Category)
-                .AsNoTracking()
+                .AsNoTrackingWithIdentityResolution()
                 .FirstOrDefaultAsync(p => p.Id == id);           
 
             return product;
@@ -79,60 +77,62 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 
         public async Task<IEnumerable<Product>> GetByCategory(int code)
         {
-            return await _context.Products
+            return await _dbSet
                 .Include(p => p.Category)
-                .AsNoTracking()
+                .AsNoTrackingWithIdentityResolution()
                 .Where(p => p.Category.Code == code)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Category>> GetCategories()
         {
-            return await _context.Categories
-                .AsNoTracking()
+            var categories =  await _context.Set<Category>()
+                .AsNoTrackingWithIdentityResolution()
                 .ToListAsync();
+            return categories;
         }
 
         public async Task<Product> AddProduct(Product product)
         {
-            var result = await _context.Products.AddAsync(product);           
-            await _context.SaveChangesAsync();            
+            var result = await _dbSet.AddAsync(product);
             return result.Entity;
         }
 
-        public async Task<Product> UpdateProduct(Product product)
+        public Task<Product> UpdateProduct(Product product)
         {
-            var result = _context.Products.Update(product);
-            await _context.SaveChangesAsync();            
-            return result.Entity;
+            var result = _dbSet.Update(product);
+            return Task.FromResult(product);
         }
+
+        public Product UpdateDetach(Product product)
+        {
+            return Update(product);            
+        }              
 
         public void DeleteProduct(Guid id)
         {
-            var product = _context.Products.FirstOrDefault(p => p.Id == id);
+            var product = _dbSet.FirstOrDefault(p => p.Id == id);
             if (product == null) throw new ArgumentNullException(nameof(product));
-            _context.Products.Remove(product);            
+            _dbSet.Remove(product);            
             
         }
 
         public async Task<Category> AddCategory(Category category)
         {
-            var result = _context.Categories.Add(category);
-            await _context.SaveChangesAsync();
+            var result = await _context.Set<Category>().AddAsync(category);            
             return result.Entity;
         }
 
-        public async Task<Category> UpdateCategory(Category category)
+        public Task<Category> UpdateCategory(Category category)
         {
-            var result = _context.Categories.Update(category);
-            await _context.SaveChangesAsync();
-            return result.Entity;
+            var result = _context.Set<Category>().Update(category);            
+            return Task.FromResult(result.Entity);
         }
 
         public async Task<IEnumerable<Product>> GetByCategoryName(string categoryName)
         {           
             string query = categoryName != null ? categoryName.ToLower() : string.Empty;
-            var catalogQuery = _context.Products.AsQueryable();
+            var catalogQuery = _dbSet.AsQueryable();
             var source = catalogQuery.AsNoTrackingWithIdentityResolution()
                                      .Include(p => p.Category)
                                      .Where(x => EF.Functions.Like(x.Category.Name.ToLower(), $"%{query}%"))
