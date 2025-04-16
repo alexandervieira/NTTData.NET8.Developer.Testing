@@ -505,7 +505,7 @@ public class ShoppingcartsController : BaseController
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var cartResponse = await _orderQueries.GetCustomerCart(GetCurrentUserIdTeste());
+        var cartResponse = await _orderQueries.GetCustomerCart(request.CustomerId);
         if (cartResponse == null)
             return NotFound(new ApiResponse
             {
@@ -530,7 +530,7 @@ public class ShoppingcartsController : BaseController
         return Ok(new ApiResponse
         {
             Success = true,
-            Message = "Voucher applied successfully"
+            Message = "start order successfully"
         });
 
     }

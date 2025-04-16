@@ -1,0 +1,83 @@
+using Ambev.DeveloperEvaluation.Application.Sales.Commands;
+using Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers;
+using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
+using Ambev.DeveloperEvaluation.Domain.Entities.Sales;
+using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
+using Ambev.DeveloperEvaluation.Domain.Repositories.Sales;
+using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
+using Ambev.DeveloperEvoluation.Core.Data;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using Xunit;
+
+public class OrderProcessIntegrationTests
+{
+    private readonly IOrderRepository _orderRepository;
+    private readonly IProductRepository _productRepository;
+    private readonly FakeMediatorHandler _mediatorHandler;
+
+    public OrderProcessIntegrationTests()
+    {
+        var services = new ServiceCollection();
+
+        // MediatR
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<OrderCommandHandler>());
+
+        // Mocks
+        var orderRepository = Substitute.For<IOrderRepository>();
+        var productRepository = Substitute.For<IProductRepository>();
+        var uow = Substitute.For<IUnitOfWork>();
+        uow.CommitAsync().Returns(true);
+        orderRepository.UnitOfWork.Returns(uow);
+
+        services.AddSingleton(orderRepository);
+        services.AddSingleton(productRepository);
+        services.AddSingleton(uow);
+
+        // Fake mediator handler
+        services.AddScoped<FakeMediatorHandler>();
+        services.AddScoped<IMediatorHandler>(sp => sp.GetRequiredService<FakeMediatorHandler>());
+
+        var provider = services.BuildServiceProvider();
+
+        _orderRepository = orderRepository;
+        _productRepository = productRepository;
+        _mediatorHandler = provider.GetRequiredService<FakeMediatorHandler>();
+    }
+
+    [Fact]
+    public async Task CompleteOrderProcess_WithValidData_ShouldSucceed()
+    {
+        var customerId = Guid.NewGuid();
+        var productId = Guid.NewGuid();
+        var orderId = Guid.NewGuid();
+
+        var product = new Product("Product 1", 10.0m, true);
+        var order = Order.OrderFactory.NewDraftOrder(customerId);
+        var orderItem = new OrderItem(productId, "Test Product", 5, 100.00m);
+        order.AddItem(orderItem);
+
+        _productRepository.GetById(productId).Returns(product);
+        _orderRepository.GetDraftOrderByCustomerId(customerId).Returns(order);
+        _orderRepository.GetById(orderId).Returns(order);
+
+        var addItemCommand = new AddOrderItemCommand(customerId, productId, "Test Product", 5, 100.00m);
+        var addItemResult = await _mediatorHandler.SendCommand(addItemCommand);
+
+        var startOrderCommand = new StartOrderCommand(orderId, customerId, 199.90m, "Alexander Vieira", "4111111111111111", "12/2026", "123");
+        var startOrderResult = await _mediatorHandler.SendCommand(startOrderCommand);
+
+        var finalizeOrderCommand = new FinalizeOrderCommand(orderId, customerId);
+        var finalizeOrderResult = await _mediatorHandler.SendCommand(finalizeOrderCommand);
+
+        Assert.True(addItemResult);
+        Assert.True(startOrderResult);
+        Assert.True(finalizeOrderResult);
+
+        _orderRepository.Received(1).Update(Arg.Any<Order>());
+        await _orderRepository.Received(2).GetDraftOrderByCustomerId(customerId);
+
+        //Assert.Contains(_mediatorHandler.PublishedEvents, e => e.GetType().Name == "OrderItemAddedEvent");
+        //Assert.Contains(_mediatorHandler.PublishedEvents, e => e.GetType().Name == "OrderDraftStartedEvent");
+    }
+}

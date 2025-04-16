@@ -44,9 +44,17 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
             return await _productRepository.UnitOfWork.CommitAsync();
         }
 
-        public Task<bool> ReplenishListProductsOrder(OrderProductsList collection)
+        public async Task<bool> ReplenishListProductsOrder(OrderProductsList collection)
         {
-            throw new NotImplementedException();
+            if (collection == null || collection.Items == null || !collection.Items.Any())
+            {
+                return false;
+            }
+            foreach (var item in collection.Items)
+            {
+                if (!await ReplenishItemStock(item.Id, item.Quantity)) return false;
+            }
+            return await _productRepository.UnitOfWork.CommitAsync();
         }
 
         private async Task<bool> DebitItemStock(Guid productId, int quantity)
@@ -66,7 +74,9 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
                 await _mediatorHandler.PublishDomainEvent(new ProductLowStockEvent(product.Id, product.QuantityStock));
             }
 
-            await _productRepository.UpdateProduct(product);
+            product.Category = null;
+            var result = _productRepository.UpdateDetach(product);
+            if (result == null) return false;
 
             return true;
         }
@@ -75,8 +85,12 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Catalog
         {
             var product = await _productRepository.GetById(productId);
             if (product == null) return false;
+            
             product.ReplenishStock(quantity);
-            await _productRepository.UpdateProduct(product);
+            product.Category = null;
+
+            var result = _productRepository.UpdateDetach(product);
+            if (result == null) return false;
             return true;
         }
 

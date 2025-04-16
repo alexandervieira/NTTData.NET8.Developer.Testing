@@ -37,7 +37,7 @@ public class Program
                 options.UseNpgsql(
                     builder.Configuration.GetConnectionString("DefaultConnection"),
                     b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                )
+                ).EnableSensitiveDataLogging()
             );
             
             builder.Services.AddMongoDb(builder.Configuration);

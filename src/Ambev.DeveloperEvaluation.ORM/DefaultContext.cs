@@ -48,7 +48,24 @@ public class DefaultContext : DbContext, IUnitOfWork
             relationship.DeleteBehavior = DeleteBehavior.ClientSetNull;
 
         modelBuilder.HasSequence<int>("MySequence").StartsAt(1000).IncrementsBy(1);
-        
+
+        modelBuilder.Entity<Payment>()
+        .Property(p => p.Status)
+        .HasDefaultValue("Pending");
+
+        //modelBuilder.Entity<Product>().OwnsOne(p => p.Dimensions, builder =>
+        //{
+        //    builder.Property(d => d.Width).HasColumnName("Width");
+        //    builder.Property(d => d.Height).HasColumnName("Height");
+        //    builder.Property(d => d.Depth).HasColumnName("Depth");
+        //});
+
+        //modelBuilder.Entity<Product>().OwnsOne(p => p.Rating, builder =>
+        //{
+        //    builder.Property(r => r.Rate).HasColumnName("RatingScore");
+        //    builder.Property(r => r.Count).HasColumnName("ReviewCount");
+        //});
+
         base.OnModelCreating(modelBuilder);
     }
 

@@ -54,6 +54,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Services.Payments
             {
                 payment.AddEvent(new OrderPaymentCompletedEvent(order.Id, orderPayment.CustomerId, transaction.PaymentId, transaction.Id, order.Value));
 
+                payment.Status = TransactionStatus.Paid.ToString();
                 _paymentRepository.Add(payment);
                 _paymentRepository.AddTransaction(transaction);
 

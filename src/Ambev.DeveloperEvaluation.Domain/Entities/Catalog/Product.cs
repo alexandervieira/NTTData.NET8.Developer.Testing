@@ -15,9 +15,9 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
         public decimal Price { get; private set; }
         public string? Image { get; private set; }
         public int QuantityStock { get; private set; }
-        public Rating? Rating { get; private set; }
+        public Rating? Rating { get; private set; } = null;
         public bool Active { get; private set; }
-        public Dimensions? Dimensions { get; private set; }
+        public Dimensions? Dimensions { get; private set; } = null;
         public virtual Category Category { get; set; } = null!;        
 
         public Product() { }

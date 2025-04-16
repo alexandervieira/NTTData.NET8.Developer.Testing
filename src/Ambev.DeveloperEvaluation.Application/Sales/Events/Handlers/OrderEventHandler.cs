@@ -10,8 +10,12 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Events.Handlers
         INotificationHandler<OrderDraftStartedEvent>,
         INotificationHandler<OrderItemAddedEvent>,
         INotificationHandler<OrderStockRejectedEvent>,
+        INotificationHandler<OrderProductAddedEvent>,
+        INotificationHandler<OrderProductRemovedEvent>,
+        INotificationHandler<OrderProductUpdatedEvent>,     
         INotificationHandler<OrderPaymentCompletedEvent>,
-        INotificationHandler<OrderPaymentRejectedEvent>
+        INotificationHandler<OrderPaymentRejectedEvent>,
+        INotificationHandler<VoucherAppliedToOrderEvent>
     {
         private readonly IMediatorHandler _mediatorHandler;
         private readonly ILogger<OrderEventHandler> _logger;
@@ -50,6 +54,26 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Events.Handlers
         {
             _logger.LogError("OrderPaymentRejectedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", message.OrderId, message.CustomerId);
             await _mediatorHandler.SendCommand(new CancelOrderProcessingAndRestockCommand(message.OrderId, message.CustomerId));
+        }     
+
+        public Task Handle(OrderProductAddedEvent notification, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(OrderProductRemovedEvent notification, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(OrderProductUpdatedEvent notification, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task Handle(VoucherAppliedToOrderEvent notification, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
     }
 
