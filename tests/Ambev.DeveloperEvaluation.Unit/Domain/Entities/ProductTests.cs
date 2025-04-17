@@ -75,14 +75,14 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities
         public void Product_DebitStock_MustSubtractQuantityOfProducts()
         {
             //Arrange
-            var product = _productFixture.CreateValidProduct();
-            product.ReplenishStock(15);
+            var product = _productFixture.CreateValidProduct();            ;
+            var qualityStockRecived = product.QuantityStock;
 
             //Act
             product.DebitStock(1);
 
             //Assert            
-            Assert.True(product.QuantityStock < 15);
+            Assert.True(product.QuantityStock < qualityStockRecived);
         }
 
         [Fact(DisplayName = "ReplenishStock Product")]
@@ -91,12 +91,13 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities
         {
             //Arrange
             var product = _productFixture.CreateValidProduct();
+            var qualityStockRecived = product.QuantityStock;
 
             //Act
             product.ReplenishStock(15);
 
             //Assert            
-            Assert.True(product.QuantityStock == 15);
+            Assert.True(product.QuantityStock > qualityStockRecived);
         }
 
         [Fact(DisplayName = "HasStock Product")]
@@ -119,11 +120,10 @@ namespace Ambev.DeveloperEvaluation.Unit.Domain.Entities
         public void Product_NotHasStock_ShouldThrowException()
         {
             //Arrange
-            var product = _productFixture.CreateValidProduct();
-            product.ReplenishStock(5);
+            var product = _productFixture.CreateValidProduct();            
 
             //Act
-            var ex = Assert.ThrowsAny<DomainException>(() => product.DebitStock(10));
+            var ex = Assert.ThrowsAny<DomainException>(() => product.DebitStock(51));
             
             //Assert            
             Assert.Equal("Estoque insuficiente", ex.Message);

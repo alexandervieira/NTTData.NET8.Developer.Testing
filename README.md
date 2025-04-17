@@ -37,6 +37,11 @@ Consulte o meu perfil <a href="https://github.com/alexandervieira/alexandervieir
 
 Consulte <a href="https://github.com/alexandervieira/repositorio-base/blob/master/git.md">aqui</a>.
 
+## Galeria de Fotos
+
+Consulte <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/blob/master/.doc/galery.md">aqui</a>.
+
+
 ## Tecnologias
 
 ### Componentes Implementados
