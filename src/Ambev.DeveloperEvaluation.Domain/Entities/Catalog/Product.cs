@@ -3,7 +3,6 @@ using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Validation.Catalog;
 using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 using Ambev.DeveloperEvoluation.Core.DomainObjects;
-using System;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
 {
@@ -11,7 +10,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
     {
         public Guid CategoryId { get; private set; }
         public string Title { get; private set; } = null!;
-        public string Description { get; private set; } = null!;
+        public string? Description { get; private set; }
         public decimal Price { get; private set; }
         public string? Image { get; private set; }
         public int QuantityStock { get; private set; }
@@ -22,12 +21,11 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
 
         public Product() { }
 
-        public Product(string title, decimal price, bool active)
-            : this(title, "Minha descrição", active, price, Guid.NewGuid(), string.Empty, new Rating(0,0), new Dimensions(0, 0, 0)) { }
+        public Product(Guid categoryId, string title, decimal price, string? description)
+            : this(categoryId, title, price, true, description, string.Empty, new Rating(0,0), new Dimensions(0, 0, 0)) { }
 
-        public Product(string title, string description, bool active,
-                       decimal price, Guid categoryId, string image, Rating rating,
-                       Dimensions dimensions)
+        public Product(Guid categoryId, string title, decimal price, bool active, string? description, 
+                       string image, Rating rating, Dimensions dimensions)
         {
             Title = title;
             Description = description;
@@ -37,11 +35,21 @@ namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog
             Image = image;
             Rating = rating;
             Dimensions = dimensions;
+            QuantityStock = 50;
         }
 
         public void Activate() => Active = true;
 
         public void Cancel() => Active = false;
+
+        public void AddCategory(Category category)
+        {
+            if (category == null)
+                throw new ArgumentNullException(nameof(category));
+
+            Category = category;
+            CategoryId = category.Id;
+        }
 
         public void UpdateCategory(Category category)
         {

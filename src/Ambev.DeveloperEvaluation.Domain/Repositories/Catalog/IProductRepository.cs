@@ -6,8 +6,8 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string query, string order);        
-        Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query);
+        Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string? query, string order);        
+        Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string? query);
         Task<Product?> GetById(Guid id);
         Task<IEnumerable<Product>> GetByCategory(int code);
         Task<IEnumerable<Product>> GetByCategoryName(string categoryName);

@@ -21,11 +21,11 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
             _mapper = mapper;
         }
                
-        public async Task<PaginatedList<ProductResponse>> GetAllAsync(int pageNumber, int pageSize, string query, string order)
+        public async Task<PaginatedList<ProductResponse>> GetAllAsync(int pageNumber, int pageSize, string? query, string order)
         {
             return _mapper.Map<PaginatedList<ProductResponse>>(await _productRepository.GetAllAsync(pageNumber, pageSize, query, order));
         }
-        public async Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string query)
+        public async Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string? query)
         {
             return _mapper.Map<PaginatedList<ProductResponse>>(await _productRepository.GetAll(pageNumber, pageSize, query));
         }

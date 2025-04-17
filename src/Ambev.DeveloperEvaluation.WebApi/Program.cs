@@ -5,14 +5,11 @@ using Ambev.DeveloperEvaluation.Common.Security;
 using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvaluation.IoC;
 using Ambev.DeveloperEvaluation.ORM;
-using Ambev.DeveloperEvaluation.ORM.Config;
+using Ambev.DeveloperEvaluation.ORM.Extensions;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
-using MongoDB.Driver;
 using Serilog;
-using YourAppNamespace.Extensions;
 
 namespace Ambev.DeveloperEvaluation.WebApi;
 
@@ -33,11 +30,11 @@ public class Program
             builder.AddBasicHealthChecks();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddDbContext<DefaultContext>(options =>
-                options.UseNpgsql(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
-                    b => b.MigrationsAssembly("Ambev.DeveloperEvaluation.ORM")
-                ).EnableSensitiveDataLogging()
+            builder.Services.AddDbContextWithNpgsql<DefaultContext>(
+                builder.Configuration,
+                connectionName: "DefaultConnection",
+                migrationsAssembly: "Ambev.DeveloperEvaluation.ORM",
+                migrationsHistoryTable: "__EFMigrationsHistory"
             );
             
             builder.Services.AddMongoDb(builder.Configuration);
@@ -66,13 +63,18 @@ public class Program
             builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             var app = builder.Build();            
-
+                        
             app.UseMiddleware<ValidationExceptionMiddleware>();            
 
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
+                app.SeedData<DefaultContext>(context =>
+                {
+                    context.Database.Migrate();
+                    // Seed your data here
+                });
             }
 
             app.UseHttpsRedirection();

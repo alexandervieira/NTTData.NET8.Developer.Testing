@@ -76,55 +76,5 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
             }
         }
     }
-
-
-    //public class MongoDBContext
-    //{
-    //    public class ProductContext : IProductContext
-    //    {
-    //        private readonly IMediatorHandler _mediatorHandler;
-    //        public IMongoCollection<Product> Products { get; }
-
-    //        public ProductContext(IConfiguration configuration, IMediatorHandler mediatorHandler)
-    //        {
-    //            _mediatorHandler = mediatorHandler;
-
-    //            if (!BsonClassMap.IsClassMapRegistered(typeof(Product)))
-    //            {
-    //                BsonClassMap.RegisterClassMap<BaseEntity>(map =>
-    //                {
-    //                    map.SetIsRootClass(true);
-    //                    map.AutoMap();
-    //                    map.MapProperty(t => t.Id).SetSerializer(new GuidSerializer(BsonType.String));
-    //                    map.UnmapProperty(t => t.Notifications);                       
-    //                });
-
-    //                BsonClassMap.RegisterClassMap<Product>(map =>
-    //                {
-    //                    map.AutoMap();
-    //                    map.MapCreator(p => new Product());
-    //                    map.MapProperty(p => p.CategoryId).SetSerializer(new GuidSerializer(GuidRepresentation.CSharpLegacy));
-
-    //                });
-
-    //                BsonClassMap.RegisterClassMap<Category>(map =>
-    //                {
-    //                    map.AutoMap();
-    //                    map.MapCreator(c => new Category());
-    //                    //map.MapProperty(c => c.Id).SetSerializer(new GuidSerializer(BsonType.String));
-    //                    map.UnmapProperty(c => c.Products);
-    //                });
-
-    //            }
-
-    //            var client = new MongoClient(configuration.GetValue<string>("MongoDBSettings:ConnectionString"));
-    //            var database = client.GetDatabase(configuration.GetValue<string>("MongoDBSettings:DatabaseName"));
-
-    //            Products = database.GetCollection<Product>(configuration.GetValue<string>("MongoDBSettings:CollectionName"));
-    //            ProductContextSeed.SeedData(Products);
-    //        }
-
-    //    }      
-
-    //}
+    
 }

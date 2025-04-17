@@ -16,6 +16,17 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
                 startValue: 1000L);
 
             migrationBuilder.CreateTable(
+                name: "__SeedingHistory",
+                columns: table => new
+                {
+                    Name = table.Column<string>(type: "varchar(100)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK___SeedingHistory", x => x.Name);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -36,7 +47,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     OrderId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Status = table.Column<string>(type: "varchar(100)", nullable: false),
+                    Status = table.Column<string>(type: "varchar(100)", nullable: false, defaultValue: "Pending"),
                     Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     CardName = table.Column<string>(type: "varchar(250)", nullable: false),
                     CardNumber = table.Column<string>(type: "varchar(16)", nullable: false),
@@ -98,7 +109,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "varchar(150)", nullable: false),
-                    Description = table.Column<string>(type: "varchar(250)", nullable: false),
+                    Description = table.Column<string>(type: "varchar(250)", nullable: true),
                     Price = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     Image = table.Column<string>(type: "varchar(250)", nullable: true),
                     QuantityStock = table.Column<int>(type: "integer", nullable: false),
@@ -217,6 +228,9 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "__SeedingHistory");
+
             migrationBuilder.DropTable(
                 name: "OrderItems");
 

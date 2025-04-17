@@ -56,7 +56,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SharedCore", "SharedCore", "{D0E6224D-6D9C-40CA-AE29-3A92E265F87A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ambev.DeveloperEvoluation.Core", "src\Ambev.DeveloperEvoluation.Core\Ambev.DeveloperEvoluation.Core.csproj", "{D46D017F-A640-41ED-A33F-2BE9B5F93BEC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ambev.DeveloperEvoluation.Core", "src\Ambev.DeveloperEvoluation.Core\Ambev.DeveloperEvoluation.Core.csproj", "{D46D017F-A640-41ED-A33F-2BE9B5F93BEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
