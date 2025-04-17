@@ -65,7 +65,6 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("varchar(250)");
 
                     b.Property<string>("Image")
@@ -124,7 +123,9 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("varchar(100)");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(100)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -337,6 +338,16 @@ namespace Ambev.DeveloperEvaluation.ORM.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("Ambev.DeveloperEvaluation.ORM.Entities.SeedingEntry", b =>
+                {
+                    b.Property<string>("Name")
+                        .HasColumnType("varchar(100)");
+
+                    b.HasKey("Name");
+
+                    b.ToTable("__SeedingHistory", (string)null);
                 });
 
             modelBuilder.Entity("Ambev.DeveloperEvaluation.Domain.Entities.Catalog.Product", b =>

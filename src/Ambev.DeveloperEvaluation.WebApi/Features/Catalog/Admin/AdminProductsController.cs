@@ -43,7 +43,7 @@ public class AdminProductsController : BaseController
     [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string query = null)
+    public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string? query = null)
     {
         var response = await _productService.GetAll(pageNumber, pageSize, query);
 

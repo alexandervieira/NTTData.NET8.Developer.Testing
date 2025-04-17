@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace YourAppNamespace.Extensions
+namespace Ambev.DeveloperEvaluation.ORM.Extensions
 {
     public static class MongoDbConfigurationExtensions
     {

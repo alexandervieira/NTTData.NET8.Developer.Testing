@@ -14,6 +14,9 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.DTOs
         public int QuantityStock { get; set; }
         public Rating Rating { get; set; } = null!;
         public Dimensions Dimensions { get; set; } = null!;
+        public string CreatedAtFormatted { get; set; } = null!;
+        public string? UpdatedAtFormatted { get; set; }
+
         //public IEnumerable<CategoryResponse> Categories { get; set; } = new List<CategoryResponse>();
     }
 }

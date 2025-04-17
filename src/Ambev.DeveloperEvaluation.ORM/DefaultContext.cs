@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Product = Ambev.DeveloperEvaluation.Domain.Entities.Catalog.Product;
 using Order = Ambev.DeveloperEvaluation.Domain.Entities.Sales.Order;
+using Ambev.DeveloperEvaluation.ORM.Entities;
 
 namespace Ambev.DeveloperEvaluation.ORM;
 
@@ -25,8 +26,7 @@ public class DefaultContext : DbContext, IUnitOfWork
     public virtual DbSet<Voucher> Vouchers { get; set; }
     public virtual DbSet<Payment> Payments { get; set; }
     public virtual DbSet<Transaction> Transactions { get; set; }
-
-    //public virtual DbSet<SeedingEntry> SeedingEntries { get; set; }
+    public virtual DbSet<SeedingEntry> SeedingEntries { get; set; }
 
     public DefaultContext(DbContextOptions<DefaultContext> options, 
                           IMediatorHandler mediatorHandler) : base(options)

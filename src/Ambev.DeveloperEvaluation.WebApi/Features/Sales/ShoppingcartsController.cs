@@ -40,7 +40,7 @@ public class ShoppingcartsController : BaseController
     [ProducesResponseType(typeof(PaginatedResponse<CartResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetCarts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string query = null)
+    public async Task<IActionResult> GetCarts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 8, [FromQuery] string? query = null)
     {
         var response = await _orderQueries.GetAll(pageNumber, pageSize, query);
 

@@ -20,7 +20,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 
         public IUnitOfWork UnitOfWork => (DefaultContext)_context;
 
-        public async Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string query, string order)
+        public async Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string? query, string order)
         {
             var filter = Builders<Product>.Filter.Empty;
 
@@ -52,7 +52,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
         }
 
 
-        public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string query)
+        public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string? query)
         {
             string newquery = query != null ? query.ToLower() : string.Empty;
             var catalogQuery = _dbSet.AsQueryable();

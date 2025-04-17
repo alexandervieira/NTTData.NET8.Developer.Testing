@@ -14,7 +14,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Queries
             _orderRepository = orderRepository;
         }
 
-        public async Task<PaginatedList<CartResponse>> GetAll(int pageNumber, int pageSize, string query)
+        public async Task<PaginatedList<CartResponse>> GetAll(int pageNumber, int pageSize, string? query)
         {
             var response = await _orderRepository.GetAll(pageNumber, pageSize, query);
             if (response == null) return null;

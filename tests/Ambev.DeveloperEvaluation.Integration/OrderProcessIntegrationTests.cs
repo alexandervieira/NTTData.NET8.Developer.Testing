@@ -9,6 +9,7 @@ using Ambev.DeveloperEvaluation.Domain.Enums.Sales;
 using NSubstitute;
 using Xunit;
 using Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers;
+using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 
 namespace Ambev.DeveloperEvaluation.Integration
 {
@@ -57,8 +58,9 @@ namespace Ambev.DeveloperEvaluation.Integration
             var customerId = Guid.NewGuid();
             var productId = Guid.NewGuid();
             var orderId = Guid.NewGuid();
+            var categoryId = Guid.NewGuid();
 
-            var product = new Product("Product 1", 10.0m, true);
+            var product = new  Product(categoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
             var order = Order.OrderFactory.NewDraftOrder(customerId);
 
             _productRepository.GetById(productId).Returns(product);

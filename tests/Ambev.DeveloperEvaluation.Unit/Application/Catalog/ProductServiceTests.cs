@@ -39,10 +39,11 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             var pageNumber = 1;
             var pageSize = 10;
             var query = "test";
+            var categoryId = Guid.NewGuid();
             var products = new List<Product>
             {
-                new Product("Product 1", 10.0m, true),
-                new Product("Product 2", 20.0m, true)
+                new  Product(categoryId, "Test1 Product", 100.00m, true, "Test1 Product", "test1.png", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new  Product(categoryId, "Test2 Product", 100.00m, true, "Test2 Product", "test2.png", new Rating(2.9, 10), new Dimensions(5, 5, 5))                
             };
 
             var paginatedProducts = new PaginatedList<Product>(products, products.Count, pageNumber, pageSize);
@@ -70,9 +71,11 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         {
             // Arrange
             int codeCategory = 1;
+            var categoryId = Guid.NewGuid();
             var products = new List<Product>
             {
-                new Product("Refrigerante", 5.0m, false)
+                new  Product(categoryId, "Test1 Product", 100.00m, true, "Test1 Product", "test1.png", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new  Product(categoryId, "Test2 Product", 100.00m, true, "Test2 Product", "test2.png", new Rating(2.9, 10), new Dimensions(5, 5, 5))
             };
             var productsResponse = new List<ProductResponse>
             {
@@ -95,19 +98,19 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         public async Task ProductService_GetById_MustReturnProductByID()
         {
             // Arrange
-            var id = Guid.NewGuid();
-            var product = new Product("Água", 2.0m, false);
+            var categoryId = Guid.NewGuid();
+            var product = new Product(categoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
             var productResponse = new ProductResponse { Title = "Água", Price = 2.0m };
 
-            _productRepository.GetById(id).Returns(Task.FromResult(product));
+            _productRepository.GetById(product.Id).Returns(Task.FromResult(product));
             _mapper.Map<ProductResponse>(product).Returns(productResponse);
 
             // Act
-            var resultado = await _productService.GetById(id);
+            var resultado = await _productService.GetById(product.Id);
 
             // Assert
             resultado.Should().BeEquivalentTo(productResponse);
-            await _productRepository.Received(1).GetById(id);
+            await _productRepository.Received(1).GetById(product.Id);
             _mapper.Received(1).Map<ProductResponse>(product);
         }
 
@@ -141,8 +144,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Title = "Test Product",
                 Description = "Test Description"
             };
-            var product = new Product(request.Title, request.Description, false, 100, request.CategoryId, 
-                                      "http://imagem.jpg", new Rating(2.9,10), new Dimensions(10,10,10));
+            var product = new Product(request.CategoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
             var addedProduct = product;
             var AddedCategory = category;
             _mapper.Map<Product>(request).Returns(product);            
@@ -178,8 +180,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
                 Dimensions = new Dimensions(10, 20, 30)
             };
 
-            var product = new Product(request.Title, request.Description, request.Active, request.Price, request.CategoryId,
-                                      request.Image, request.Rating, request.Dimensions);
+            var product = new Product(request.CategoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
 
             var updatedProduct = product;
             var image = updatedProduct.Image != null ? updatedProduct.Image : string.Empty;
@@ -195,7 +196,7 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
             {
                 Id = updatedProduct.Id,
                 Title = updatedProduct.Title,
-                Description = updatedProduct.Description,
+                Description = updatedProduct.Description != null ? updatedProduct.Description : string.Empty,
                 Price = updatedProduct.Price,
                 Image = image,
                 QuantityStock = updatedProduct.QuantityStock,
@@ -228,22 +229,22 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         public async Task ProductService_DebitStock_ShouldDebitStockSuccessfully()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var categoryId = Guid.NewGuid();
             var quantity = 5;
-            var product = new Product("Water", 2.0m, false);
+            var product = new Product(categoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
             var productResponse = new ProductResponse { Title = "Water", Price = 2.0m };
 
-            _stockService.DebitStock(id, quantity).Returns(Task.FromResult(true));
-            _productRepository.GetById(id).Returns(Task.FromResult(product));
+            _stockService.DebitStock(product.Id, quantity).Returns(Task.FromResult(true));
+            _productRepository.GetById(product.Id).Returns(Task.FromResult(product));
             _mapper.Map<ProductResponse>(product).Returns(productResponse);
 
             // Act
-            var result = await _productService.DebitStock(id, quantity);
+            var result = await _productService.DebitStock(product.Id, quantity);
 
             // Assert
             result.Should().BeEquivalentTo(productResponse);
-            await _stockService.Received(1).DebitStock(id, quantity);
-            await _productRepository.Received(1).GetById(id);
+            await _stockService.Received(1).DebitStock(product.Id, quantity);
+            await _productRepository.Received(1).GetById(product.Id);
             _mapper.Received(1).Map<ProductResponse>(product);
         }
 
@@ -269,22 +270,22 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         public async Task ProductService_ReplenishStock_ShouldReplenishStockSuccessfully()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var categoryId = Guid.NewGuid();
             var quantity = 10;
-            var product = new Product("Juice", 3.0m, false);
+            var product = new Product(categoryId, "Test Product", 100.00m, true, "Test Product", "test.png", new Rating(2.9, 10), new Dimensions(5, 5, 5));
             var productResponse = new ProductResponse { Title = "Juice", Price = 3.0m };
 
-            _stockService.ReplenishStock(id, quantity).Returns(Task.FromResult(true));
-            _productRepository.GetById(id).Returns(Task.FromResult(product));
+            _stockService.ReplenishStock(product.Id, quantity).Returns(Task.FromResult(true));
+            _productRepository.GetById(product.Id).Returns(Task.FromResult(product));
             _mapper.Map<ProductResponse>(product).Returns(productResponse);
 
             // Act
-            var result = await _productService.ReplenishStock(id, quantity);
+            var result = await _productService.ReplenishStock(product.Id, quantity);
 
             // Assert
             result.Should().BeEquivalentTo(productResponse);
-            await _stockService.Received(1).ReplenishStock(id, quantity);
-            await _productRepository.Received(1).GetById(id);
+            await _stockService.Received(1).ReplenishStock(product.Id, quantity);
+            await _productRepository.Received(1).GetById(product.Id);
             _mapper.Received(1).Map<ProductResponse>(product);
         }
 

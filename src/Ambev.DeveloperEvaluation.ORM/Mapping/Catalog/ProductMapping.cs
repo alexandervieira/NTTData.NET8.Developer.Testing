@@ -14,8 +14,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Mapping.Catalog
                 .IsRequired()
                 .HasColumnType("varchar(150)");
 
-            builder.Property(p => p.Description)
-                .IsRequired()
+            builder.Property(p => p.Description)                
                 .HasColumnType("varchar(250)");
 
             builder.Property(p => p.Price)

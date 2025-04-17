@@ -1,6 +1,5 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
 using Ambev.DeveloperEvoluation.Core.Messages;
-using Microsoft.AspNetCore.Mvc.Formatters;
 
 namespace Ambev.DeveloperEvaluation.Domain.Common;
 

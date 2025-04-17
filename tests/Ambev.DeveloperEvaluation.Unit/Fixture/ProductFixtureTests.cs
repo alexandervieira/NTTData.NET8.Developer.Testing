@@ -13,15 +13,15 @@ namespace Ambev.DeveloperEvaluation.Unit.Fixture
     {
         private bool _disposedValue = false;
 
-        public IEnumerable<Product> CreateProducts(int quantity, bool canceled)
+        public IEnumerable<Product> CreateProducts(int quantity, bool active)
         {
             var bogus = new Faker<Product>("pt_BR")
             .CustomInstantiator(f => new Product(
-                f.Commerce.ProductName(), // Title
-                f.Commerce.ProductDescription(), // Description
-                canceled,
-                f.Random.Decimal(49M, 1000M), // Price
                 f.Random.Guid(), // CategoryId
+                f.Commerce.ProductName(), // Title
+                f.Random.Decimal(49M, 1000M), // Price               
+                active,
+                f.Commerce.ProductDescription(), // Description
                 f.Image.PicsumUrl(), // Image
                 new Rating(
                     f.Random.Double(1, 5), // Rate
@@ -41,9 +41,10 @@ namespace Ambev.DeveloperEvaluation.Unit.Fixture
         {
             var bogus = new Faker<Product>("pt_BR");
             bogus.CustomInstantiator(f => new Product(
+               f.Random.Guid(), // CategoryId
                string.Empty,
-               f.Random.Decimal(49M, 1000M),
-               false
+               f.Random.Decimal(49M, 1000M),               
+               f.Commerce.ProductDescription() // Description
             ));
             return bogus.Generate();
         }
