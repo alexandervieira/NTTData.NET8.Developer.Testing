@@ -1,3 +1,5 @@
+using Ambev.DeveloperEvoluation.Security.Models;
+
 namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 
 /// <summary>
@@ -34,4 +36,6 @@ public sealed class AuthenticateUserResult
     /// Gets or sets the user's role
     /// </summary>
     public string Role { get; set; } = string.Empty;
+
+    public UserResponseLogin UserResponseLogin { get; set; } = null!; // UserResponseLogin is a class that contains the token and user information
 }

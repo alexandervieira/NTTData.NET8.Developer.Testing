@@ -22,8 +22,11 @@ using Ambev.DeveloperEvaluation.ORM.Repositories.Payments;
 using Ambev.DeveloperEvaluation.ORM.Repositories.Sales;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvoluation.Core.Messages.Commons.IntegrationEvents;
+using Ambev.DeveloperEvoluation.Security.Services;
+using Ambev.DeveloperEvoluation.Security.Services.AspNetUser;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,7 +37,14 @@ public class InfrastructureModuleInitializer : IModuleInitializer
     public void Initialize(WebApplicationBuilder builder)
     {        
         builder.Services.AddScoped<IMediatorHandler, MediatorHandler>();
-     
+
+        //HttpContext
+        builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+        builder.Services.AddScoped<AuthService>();
+
+        builder.Services.AddScoped<IAspNetUser, AspNetUser>();
+
         builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());
 
         builder.Services.AddScoped<IProductContext, ProductContext>();

@@ -1,3 +1,4 @@
+using Ambev.DeveloperEvoluation.Security.Models;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
@@ -6,7 +7,7 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 /// Command for authenticating a user in the system.
 /// Implements IRequest for mediator pattern handling.
 /// </summary>
-public class AuthenticateUserCommand : IRequest<AuthenticateUserResult>
+public class AuthenticateUserCommand : IRequest<UserResponseLogin>
 {
     /// <summary>
     /// Gets or sets the email address for authentication.

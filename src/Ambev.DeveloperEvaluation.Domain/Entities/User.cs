@@ -83,7 +83,7 @@ public class User : BaseEntity, IUser
     /// </summary>
     public User()
     {
-        CreatedAt = DateTime.UtcNow;
+        //CreatedAt = DateTime.UtcNow;
     }
 
     /// <summary>
