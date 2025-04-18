@@ -12,7 +12,7 @@
 	
 	<ItemGroup>
 	  <PackageReference Include="DevExpress.Xpo" Version="24.2.6" />
-	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.8" />
+	  <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -20,6 +20,7 @@
 		<ProjectReference Include="..\Ambev.DeveloperEvaluation.Application\Ambev.DeveloperEvaluation.Application.csproj" />
 		<ProjectReference Include="..\Ambev.DeveloperEvaluation.ORM\Ambev.DeveloperEvaluation.ORM.csproj" />
 		<ProjectReference Include="..\Ambev.DeveloperEvaluation.Common\Ambev.DeveloperEvaluation.Common.csproj" />
+		<ProjectReference Include="..\Ambev.DeveloperEvoluation.Security\Ambev.DeveloperEvoluation.Security.csproj" />
 	</ItemGroup>
 
 </Project>

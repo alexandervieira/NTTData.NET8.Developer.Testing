@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ambev.DeveloperEvaluation.Domain\Ambev.DeveloperEvaluation.Domain.csproj" />
+    <ProjectReference Include="..\Ambev.DeveloperEvoluation.Security\Ambev.DeveloperEvoluation.Security.csproj" />
   </ItemGroup>
 
   <ItemGroup>
