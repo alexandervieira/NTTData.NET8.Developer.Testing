@@ -24,14 +24,15 @@ public sealed class AuthenticateUserProfile : Profile
 
         CreateMap<RegisterUserRequest, RegisterUserCommand>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.UserName))
-            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password))
-            .ForMember(dest => dest.BirthDate, opt => opt.MapFrom(src => src.BirthDate))
+            .ForMember(dest => dest.Password, opt => opt.MapFrom(src => src.Password))            
             .ForMember(dest => dest.ConfirmePassword, opt => opt.MapFrom(src => src.ConfirmePassword))
-            .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active))
-            .ForMember(dest => dest.Cpf, opt => opt.MapFrom(src => src.Cpf))
+            .ForMember(dest => dest.Active, opt => opt.MapFrom(src => src.Active))            
             .ForMember(dest => dest.FistName, opt => opt.MapFrom(src => src.FistName))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.LastName))
             .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email));
+
+        CreateMap<RefreshTokenRequest, RefreshTokenCommand>()
+            .ForMember(dest => dest.RefreshToken, opt => opt.MapFrom(src => src.RefreshToken));
 
     }
 }

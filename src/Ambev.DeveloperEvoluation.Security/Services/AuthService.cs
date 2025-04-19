@@ -14,7 +14,8 @@ namespace Ambev.DeveloperEvoluation.Security.Services;
 public class AuthService
 {
     public readonly SignInManager<IdentityUser> SignInManager;
-    public readonly UserManager<IdentityUser> UserManager;  
+    public readonly UserManager<IdentityUser> UserManager;
+    public readonly RoleManager<IdentityRole> RoleManager;
     public readonly IAspNetUser _aspNetUser;      
     private readonly AppTokenSettings _appTokenSettings;
     private readonly AuthDbContext _context;
@@ -22,6 +23,7 @@ public class AuthService
 
     public AuthService(SignInManager<IdentityUser> signInManager, 
                                  UserManager<IdentityUser> userManager,
+                                 RoleManager<IdentityRole> roleManager,
                                  IOptions<AppTokenSettings> appTokenSettings,
                                  AuthDbContext context,
                                  IJsonWebKeySetService jwksService,
@@ -29,6 +31,7 @@ public class AuthService
     {
         SignInManager = signInManager;
         UserManager = userManager;
+        RoleManager = roleManager;
         _appTokenSettings = appTokenSettings.Value;
         _context = context;
         _jwksService = jwksService;
@@ -92,14 +95,10 @@ public class AuthService
     private async Task<ClaimsIdentity> GetClaimUser(ICollection<Claim> claims, IdentityUser user)
     {
         var userRoles = await UserManager.GetRolesAsync(user);
-        claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));
-        claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
+        claims.Add(new Claim(JwtRegisteredClaimNames.Sub, user.Id));       
         claims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
         claims.Add(new Claim(JwtRegisteredClaimNames.Nbf, ToUnixEpochDate(DateTime.UtcNow).ToString()));
-        foreach (var item in userRoles)
-        {
-            claims.Add(new Claim("role", item));
-        }
+        
         var identityClaims = new ClaimsIdentity();
         identityClaims.AddClaims(claims);
         return identityClaims;

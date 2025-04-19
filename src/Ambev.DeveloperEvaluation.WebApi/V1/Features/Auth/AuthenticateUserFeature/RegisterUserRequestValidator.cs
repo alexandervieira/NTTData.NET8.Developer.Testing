@@ -23,21 +23,21 @@ public class RegisterUserRequestValidator : AbstractValidator<RegisterUserReques
 
         RuleFor(x => x.FistName)
             .NotEmpty()
-            .WithMessage("FistName is required");
+            .WithMessage("FistName is required");           
 
         RuleFor(x => x.LastName)
             .NotEmpty()
             .WithMessage("LastName is required");
 
-        //RuleFor(x => x.Cpf)
-        //    .NotEmpty()
-        //    .WithMessage("Cpf is required")
-        //    .Matches(@"^\d{3}\.\d{3}\.\d{3}-\d{2}$")
-        //    .WithMessage("Invalid CPF format. Expected format: XXX.XXX.XXX-XX");
+        RuleFor(x => x.UserName)
+            .Empty()
+            .When(x => !string.IsNullOrWhiteSpace(x.Phone))
+            .WithMessage("UserName must be valid when provided");
 
-
-
-
+        RuleFor(x => x.Phone)
+            .Matches(@"^\+?55\s?\(?\d{2}\)?\s?\d{4,5}-\d{4}$")
+            .WithMessage("Phone must be a valid Brazilian number in the format +55 (XX) XXXXX-XXXX or +55 (XX) XXXX-XXXX")
+            .When(x => !string.IsNullOrWhiteSpace(x.Phone));
 
     }
 }

@@ -9,6 +9,7 @@ using Ambev.DeveloperEvaluation.WebApi.Configurations;
 using Ambev.DeveloperEvaluation.WebApi.Middleware;
 using Ambev.DeveloperEvoluation.Security.Configurations;
 using Ambev.DeveloperEvoluation.Security.Data;
+using Ambev.DeveloperEvoluation.Security.Extensions;
 using Asp.Versioning.ApiExplorer;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -114,6 +115,11 @@ public class Program
                 app.UseCors("Development");
                 app.UseSwaggerConfig(app.Services.GetRequiredService<IApiVersionDescriptionProvider>());
                 app.SeedData<DefaultContext>(context =>
+                {
+                    context.Database.Migrate();
+                    // Seed your data here
+                });
+                app.SeedDataIdentityRolesAndClaims<AuthDbContext>(context =>
                 {
                     context.Database.Migrate();
                     // Seed your data here

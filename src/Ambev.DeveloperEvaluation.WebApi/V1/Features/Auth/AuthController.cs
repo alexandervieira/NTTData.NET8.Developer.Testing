@@ -6,6 +6,8 @@ using Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser;
 using Ambev.DeveloperEvoluation.Security.Models;
 using Ambev.DeveloperEvaluation.WebApi.V1.Features.Auth.AuthenticateUserFeature;
 using Asp.Versioning;
+using System.Threading;
+using Ambev.DeveloperEvoluation.Security.Services.AspNetUser;
 
 namespace Ambev.DeveloperEvaluation.WebApi.V1.Features.Auth;
 
@@ -19,16 +21,18 @@ public class AuthController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IMapper _mapper;
+    private readonly IAspNetUser _aspNetUser;
 
     /// <summary>
     /// Initializes a new instance of AuthController
     /// </summary>
     /// <param name="mediator">The mediator instance</param>
     /// <param name="mapper">The AutoMapper instance</param>
-    public AuthController(IMediator mediator, IMapper mapper)
+    public AuthController(IMediator mediator, IMapper mapper, IAspNetUser aspNetUser)
     {
         _mediator = mediator;
         _mapper = mapper;
+        _aspNetUser = aspNetUser;
     }
 
     /// <summary>
@@ -131,22 +135,44 @@ public class AuthController : BaseController
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> Logout()
-    {
-
-        var command = new LogoutCommand { LoggedOut = true };
-        var response = await _mediator.Send(command);
-        if (!response)
-            return BadRequest(new ApiResponse
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {        
+        try
+        {            
+            var loggedOut = _aspNetUser.IsAuthenticated();
+            if (!loggedOut)
             {
-                Success = response,
-                Message = "Logout failed"
-            });
+                return Unauthorized(new ApiResponse
+                {
+                    Success = false,
+                    Message = "User is not authenticated"
+                });
+            }
+            var command = new LogoutCommand { LoggedOut = loggedOut };
+            var response = await _mediator.Send(command, cancellationToken);
 
-        return Ok(new ApiResponse
+            if (!response)
+            {
+                return BadRequest(new ApiResponse
+                {
+                    Success = false,
+                    Message = "Logout failed"
+                });
+            }
+
+            return Ok(new ApiResponse
+            {
+                Success = true,
+                Message = "Logout successful"
+            });
+        }
+        catch (UnauthorizedAccessException ex)
         {
-            Success = response,
-            Message = "Logout success"
-        });
+            return Unauthorized(new ApiResponse
+            {
+                Success = false,
+                Message = ex.Message
+            });
+        }
     }
 }

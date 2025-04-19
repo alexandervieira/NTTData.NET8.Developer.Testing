@@ -8,6 +8,7 @@ using Ambev.DeveloperEvaluation.WebApi.Common;
 using Microsoft.AspNetCore.Authorization;
 using Asp.Versioning;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Ambev.DeveloperEvoluation.Security.Extensions;
 
 
 namespace Ambev.DeveloperEvaluation.WebApi.V1.Features.Catalog.Admin;
@@ -44,6 +45,8 @@ public class AdminProductsController : BaseController
     /// Retrieves products
     /// </summary>    
     /// <returns>The products if found</returns>
+    [ClaimsAuthorize("Permission", "Read")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpGet("products")]
     [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -70,6 +73,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Read")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpGet("products/category/{category}")]
     [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<ProductResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -106,6 +111,8 @@ public class AdminProductsController : BaseController
     /// <param name="id">The unique identifier of the user</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>The product details if found</returns>
+    [ClaimsAuthorize("Permission", "Read")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpGet("products/{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -136,6 +143,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Write")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpPost("products")]
     [ProducesResponseType(typeof(ApiResponseWithData<ProductResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -179,6 +188,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Edit")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpPut("products/{id}")]
     [ProducesResponseType(typeof(ApiResponseWithData<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -229,6 +240,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Delete")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpDelete("products/{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -258,6 +271,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Read")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpGet("products/categories")]
     [ProducesResponseType(typeof(ApiResponseWithData<IEnumerable<CategoryResponse>>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -276,6 +291,8 @@ public class AdminProductsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permission", "Write")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpPost("products/add-category")]
     [ProducesResponseType(typeof(ApiResponseWithData<CategoryResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]

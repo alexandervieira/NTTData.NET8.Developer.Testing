@@ -6,6 +6,7 @@ using Ambev.DeveloperEvoluation.Security.Models;
 using Ambev.DeveloperEvoluation.Security.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
 {
@@ -74,8 +75,48 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
                 throw new DomainException("Falha ao registrar o usuário no Identity");
             }
 
+            // Garantir que a role CUSTOMER exista
+            var roleName = UserRole.Customer.ToString(); // "CUSTOMER"
+            var roleExists = await _authService.RoleManager.RoleExistsAsync(roleName);
+            if (!roleExists)
+            {
+                var roleResult = await _authService.RoleManager.CreateAsync(new IdentityRole(roleName));
+                if (!roleResult.Succeeded)
+                {
+                    throw new DomainException($"Falha ao criar a role {roleName}");
+                }
+            }
+
+            // Adicionar Role ao usuário
+            var roleResultAdd = await _authService.UserManager.AddToRoleAsync(identityUser, roleName);
+            if (!roleResultAdd.Succeeded)
+            {
+                throw new DomainException("Falha ao adicionar a role ao usuário");
+            }
+
+            // Adicionar Claims ao usuário
+            var claims = new List<Claim>
+            {
+                new Claim("Permission", "Read"), // Adicione as permissões necessárias aqui
+                new Claim("Role", roleName),
+                new Claim("Email", request.Email),
+                new Claim("Username", request.UserName ?? request.Email)
+            };
+
+            var claimsResult = await _authService.UserManager.AddClaimsAsync(identityUser, claims);
+            if (!claimsResult.Succeeded)
+            {
+                throw new DomainException("Falha ao adicionar claims ao usuário");
+            }
+
             // Recuperar o hash da senha gerado pelo Identity
             var passwordHash = _authService.UserManager.PasswordHasher.HashPassword(identityUser, request.Password);
+
+            // Remover máscara do telefone, se fornecido
+            var phoneWithoutMask = request.Phone?.Replace("(", "")
+                                                 .Replace(")", "")
+                                                 .Replace("-", "")
+                                                 .Replace(" ", "");
 
             // Criação do usuário na aplicação
             var appUser = new User
@@ -83,7 +124,8 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
                 Id = Guid.Parse(await _authService.UserManager.GetUserIdAsync(identityUser)),
                 Email = request.Email,
                 Password = passwordHash, // Armazena o hash da senha no banco de dados da aplicação
-                Username = request.UserName ?? $"{request.FistName}.{request.LastName}",
+                Username = request.UserName ?? request.Email,
+                Phone = phoneWithoutMask,
                 Role = UserRole.Customer, // Ajuste conforme necessário
                 Status = UserStatus.Active                
             };
@@ -100,18 +142,7 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
             }
 
             // Geração do token JWT
-            var userResponseLogin = await _authService.GenerateJwt(request.Email);
-
-            if (!userResponseLogin.UserToken.Claims.Any(c => c.Type == "Role"))
-            {
-                var claimsList = userResponseLogin.UserToken.Claims.ToList();
-                claimsList.Add(new UserClaim
-                {
-                    Type = "Role",
-                    Value = appUser.Role.ToString()
-                });
-                userResponseLogin.UserToken.Claims = claimsList;
-            }
+            var userResponseLogin = await _authService.GenerateJwt(request.Email);           
 
             return userResponseLogin;
 
@@ -131,12 +162,26 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
 
         public async Task<bool> Handle(LogoutCommand request, CancellationToken cancellationToken)
         {
-            if (!request.LoggedOut)
+            try
             {
-                throw new UnauthorizedAccessException("LoggedOut failed");                
-            }
+                if (request == null)
+                {
+                    throw new ArgumentNullException(nameof(request), "Logout request cannot be null");
+                }
 
-            return await _authService.Logout();          
+                if(request.LoggedOut == false)
+                {
+                    throw new UnauthorizedAccessException("User is not authenticated");
+                }
+
+                // Realiza o logout usando o SignInManager do Identity                
+                return await _authService.Logout();
+            }
+            catch (Exception ex)
+            {
+                // Log de erro (se necessário)
+                throw new UnauthorizedAccessException("Logout failed", ex);
+            }
 
         }
     }
