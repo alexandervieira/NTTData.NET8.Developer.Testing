@@ -8,6 +8,7 @@ using Ambev.DeveloperEvaluation.WebApi.V1.Features.Auth.AuthenticateUserFeature;
 using Asp.Versioning;
 using System.Threading;
 using Ambev.DeveloperEvoluation.Security.Services.AspNetUser;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Ambev.DeveloperEvaluation.WebApi.V1.Features.Auth;
 
@@ -101,6 +102,7 @@ public class AuthController : BaseController
         });
     }
 
+    [Authorize]
     [HttpPost("refresh-token")]
     [ProducesResponseType(typeof(ApiResponseWithData<UserResponseLogin>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]

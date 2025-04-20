@@ -46,11 +46,13 @@ namespace Ambev.DeveloperEvoluation.Security.Extensions
             // Criar claims padrão
             var defaultClaims = new List<Claim>
             {
-                new Claim("Permission", "Read"),
-                new Claim("Permission", "Write"),
-                new Claim("Permission", "Edit"),
-                new Claim("Permission", "Delete"),
+                //new Claim("Permission", "Read"),
+                //new Claim("Permission", "Write"),
+                //new Claim("Permission", "Edit"),
+                //new Claim("Permission", "Delete"),
+                new Claim("Permissions", "Read,Write,Edit,Delete"),
                 new Claim("Role", UserRole.Admin.ToString()),
+                new Claim("Roles", "Admin,Customer,Manager"),
                 new Claim("Email", "admin@dominio.com"),
                 new Claim("Username", "admin@dominio.com")
             };

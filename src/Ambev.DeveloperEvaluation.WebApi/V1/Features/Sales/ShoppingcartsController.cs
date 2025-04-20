@@ -9,6 +9,10 @@ using Ambev.DeveloperEvaluation.Application.Sales.DTOs;
 using Ambev.DeveloperEvaluation.Application.Sales.Commands;
 using Ambev.DeveloperEvaluation.Application.Catalog.Validations;
 using Asp.Versioning;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Ambev.DeveloperEvoluation.Security.Services.AspNetUser;
+using Ambev.DeveloperEvoluation.Security.Extensions;
 
 namespace Ambev.DeveloperEvaluation.WebApi.V1.Features.Sales;
 
@@ -18,12 +22,22 @@ namespace Ambev.DeveloperEvaluation.WebApi.V1.Features.Sales;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/carts")]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class ShoppingcartsController : BaseController
 {
     private readonly IOrderQueries _orderQueries;
     private readonly IProductService _productService;
     private readonly IMediatorHandler _mediatorHandler;
-    private Guid GetCurrentUserIdTeste() => Guid.Parse("dfa87386-9c36-4e39-9f54-e1cf6e84a099");
+    private readonly IAspNetUser _AspNetUser;
+
+    public ShoppingcartsController(IOrderQueries orderQueries, IProductService productService, 
+                                   IMediatorHandler mediatorHandler, IAspNetUser aspNetUser)
+    {
+        _orderQueries = orderQueries;
+        _productService = productService;
+        _mediatorHandler = mediatorHandler;
+        _AspNetUser = aspNetUser;
+    }
 
     /// <summary>
     /// Initializes a new instance of ShoppingcartsController 
@@ -31,13 +45,9 @@ public class ShoppingcartsController : BaseController
     /// <param name="orderQueries">The orderQueries instance</param>    
     /// <param name="productService">The productService instance</param>  
     /// <param name="mediatorHandler">The mediatorHandler instance</param>  
-    public ShoppingcartsController(IOrderQueries orderQueries, IProductService productService, IMediatorHandler mediatorHandler)
-    {
-        _orderQueries = orderQueries;
-        _productService = productService;
-        _mediatorHandler = mediatorHandler;
-    }
 
+    [ClaimsAuthorize("Permissions", "Read")]
+    [ClaimsAuthorize("Role", "Admin")]
     [HttpGet]
     [ProducesResponseType(typeof(PaginatedResponse<CartResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -68,12 +78,29 @@ public class ShoppingcartsController : BaseController
     /// Retrieves shoppingcarts
     /// </summary>    
     /// <returns>The shoppingcarts if found</returns>
+    [ClaimsAuthorize("Permissions", "Read")]
     [HttpGet("my-cart/{customerId}")]
     [ProducesResponseType(typeof(ApiResponseWithData<CartResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetCustomerCart([FromRoute] Guid customerId)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
+        
+        if (customerId != _AspNetUser.GetUserId())
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Customer ID does not match the authenticated user."
+            });
+        }
+
         var response = await _orderQueries.GetCustomerCart(customerId);
         if (response == null)
             return NotFound("Cart not found.");
@@ -86,6 +113,7 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Write")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponseWithData<AddUpdateOrderResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -130,6 +158,7 @@ public class ShoppingcartsController : BaseController
                 Success = false,
                 Message = "Cart not found."
             });
+
         cartResponse.CustomerId = request.CustomerId;
         cartResponse.Items = request.Items.Select(item => new CartItemResponse
         {
@@ -158,6 +187,7 @@ public class ShoppingcartsController : BaseController
 
     }
 
+    [ClaimsAuthorize("Permissions", "Edit")]
     [HttpPut]
     [ProducesResponseType(typeof(ApiResponseWithData<AddUpdateOrderResponse>), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -170,6 +200,7 @@ public class ShoppingcartsController : BaseController
                 Success = false,
                 Message = "Model state is invalid."
             });
+
         if (request == null)
             return BadRequest(new ApiResponse
             {
@@ -230,6 +261,7 @@ public class ShoppingcartsController : BaseController
 
     }
 
+    [ClaimsAuthorize("Permissions", "Write")]
     [HttpPost("{productId}/add-item/{quantity}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -269,7 +301,7 @@ public class ShoppingcartsController : BaseController
             });
         }
 
-        var command = new AddOrderItemCommand(GetCurrentUserIdTeste(), productResponse.Id,
+        var command = new AddOrderItemCommand(_AspNetUser.GetUserId(), productResponse.Id,
                             productResponse.Title, request.Quantity, productResponse.Price);
 
         var result = await _mediatorHandler.SendCommand(command);
@@ -289,6 +321,7 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Edit")]
     [HttpPut("{productId}/update-item/{quantity}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -325,7 +358,7 @@ public class ShoppingcartsController : BaseController
                 Message = $"Product with ID {productId} not found."
             });
 
-        var command = new UpdateOrderItemCommand(GetCurrentUserIdTeste(), response.Id, request.Quantity);
+        var command = new UpdateOrderItemCommand(_AspNetUser.GetUserId(), response.Id, request.Quantity);
         var result = await _mediatorHandler.SendCommand(command);
         if (!result)
         {
@@ -344,12 +377,19 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Delete")]
     [HttpDelete("debit-units")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteOrderItemUnits([FromBody] DeleteOrderItemUnitsRequest request, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
 
         var validator = new DeleteOrderItemUnitsValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -384,12 +424,20 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Delete")]
     [HttpDelete("{id}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteItem([FromRoute] Guid id, CancellationToken cancellationToken)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
+
         var request = new DeleteProductRequest { Id = id };
         var validator = new DeleteProductRequestValidator();
         var validationResult = await validator.ValidateAsync(request, cancellationToken);
@@ -404,7 +452,7 @@ public class ShoppingcartsController : BaseController
                 Success = false,
                 Message = $"Product with ID {id} not found."
             });
-        var command = new DeleteOrderItemCommand(GetCurrentUserIdTeste(), id);
+        var command = new DeleteOrderItemCommand(_AspNetUser.GetUserId(), id);
         var result = await _mediatorHandler.SendCommand(command);
 
         if (!result)
@@ -423,6 +471,7 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Write")]
     [HttpPost("apply-voucher/{voucher}")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -444,7 +493,7 @@ public class ShoppingcartsController : BaseController
         if (!validationResult.IsValid)
             return BadRequest(validationResult.Errors);
 
-        var command = new ApplyVoucherToOrderCommand(GetCurrentUserIdTeste(), request.VoucherCode);
+        var command = new ApplyVoucherToOrderCommand(_AspNetUser.GetUserId(), request.VoucherCode);
         var result = await _mediatorHandler.SendCommand(command);
         if (!result)
         {
@@ -463,12 +512,72 @@ public class ShoppingcartsController : BaseController
 
     }
 
+    [ClaimsAuthorize("Permissions", "Write")]
+    [ClaimsAuthorize("Role", "Admin")]
+    [HttpPost("generate-voucher")]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GenerateVoucher([FromBody] GenerateVoucherRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });       
+
+        if (request == null)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Request body cannot be null."
+            });
+
+        var command = new GenereateVoucherOrderCommand(request.Code, request.Percentage, request.DiscountValue,
+            request.Quantity, request.DiscountVoucherType, request.UsageDate, request.ExpirationDate, request.Active, request.Used);
+
+        var result = await _mediatorHandler.SendCommand(command);
+        if (!result)
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "fail to generate voucher."
+            });
+        }
+
+        return Ok(new ApiResponse
+        {
+            Success = true,
+            Message = "Voucher generated successfully"
+        });
+
+    }
+
+    [ClaimsAuthorize("Permissions", "Read")]
     [HttpGet("purchase-summary/{customerId}")]
     [ProducesResponseType(typeof(ApiResponseWithData<CartResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> PurchaseSummary([FromRoute] Guid customerId)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Model state is invalid."
+            });
+
+        if (customerId != _AspNetUser.GetUserId())
+        {
+            return BadRequest(new ApiResponse
+            {
+                Success = false,
+                Message = "Customer ID does not match the authenticated user."
+            });
+        }
+
         var response = await _orderQueries.GetCustomerCart(customerId);
         if (response == null)
             return NotFound("Cart not found.");
@@ -481,6 +590,7 @@ public class ShoppingcartsController : BaseController
         });
     }
 
+    [ClaimsAuthorize("Permissions", "Write")]
     [HttpPost("start-order")]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status201Created)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
@@ -515,7 +625,7 @@ public class ShoppingcartsController : BaseController
                 Message = "Cart not found."
             });
 
-        var command = new StartOrderCommand(cartResponse.OrderId, GetCurrentUserIdTeste(), cartResponse.TotalValue,
+        var command = new StartOrderCommand(cartResponse.OrderId, _AspNetUser.GetUserId(), cartResponse.TotalValue,
             request.Payment.CardName, request.Payment.CardNumber, request.Payment.CardExpiration, request.Payment.CardCvv);
 
         var result = await _mediatorHandler.SendCommand(command);

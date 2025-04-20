@@ -97,7 +97,8 @@ namespace Ambev.DeveloperEvaluation.Application.Auth.AuthenticateUser
             // Adicionar Claims ao usuário
             var claims = new List<Claim>
             {
-                new Claim("Permission", "Read"), // Adicione as permissões necessárias aqui
+                new Claim("Permissions", "Read,Write,Edit,Delete"), // Adicione as permissões necessárias aqui
+                new Claim("Roles", "Admin,Customer,Manager"),
                 new Claim("Role", roleName),
                 new Claim("Email", request.Email),
                 new Claim("Username", request.UserName ?? request.Email)

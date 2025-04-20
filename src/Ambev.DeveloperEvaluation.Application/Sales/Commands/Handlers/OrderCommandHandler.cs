@@ -20,6 +20,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
     IRequestHandler<DeleteOrderItemCommand, bool>,
     IRequestHandler<DeleteOrderItemUnitsCommand, bool>,
     IRequestHandler<ApplyVoucherToOrderCommand, bool>,
+    IRequestHandler<GenereateVoucherOrderCommand,  bool>,
     IRequestHandler<StartOrderCommand, bool>,
     IRequestHandler<FinalizeOrderCommand, bool>,
     IRequestHandler<CancelOrderProcessingAndRestockCommand, bool>,
@@ -307,7 +308,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             }
 
             order.AddEvent(new VoucherAppliedToOrderEvent(message.CustomerId, order.Id, voucher.Id));
-            _orderRepository.Update(order);
+            _orderRepository.UpdateDetach(order);
 
             return await _orderRepository.UnitOfWork.CommitAsync();
         }
@@ -326,7 +327,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
 
             order.AddEvent(new OrderStartedEvent(order.Id, order.CustomerId, productList, order.TotalValue, message.CardName, message.CardNumber, message.CardExpiration, message.CardCvv));
 
-            _orderRepository.Update(order);
+            _orderRepository.UpdateDetach(order);
             return await _orderRepository.UnitOfWork.CommitAsync();
         }
 
@@ -376,7 +377,40 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers
             order.SetAsDraft();
 
             return await _orderRepository.UnitOfWork.CommitAsync();
-        }       
+        }
+
+        public async Task<bool> Handle(GenereateVoucherOrderCommand message, CancellationToken cancellationToken)
+        {
+            if (!ValidateCommand(message)) return false;
+            
+            var voucher = await _orderRepository.GetVoucherByCode(message.Code);
+            if (voucher != null)
+            {
+                await _mediatorHandler.PublishNotification(new DomainNotification("voucher", "Voucher code already exists!"));
+                return false;
+            }
+
+            var result = await _orderRepository.AddVoucher(new Voucher
+            {
+                Code = message.Code,
+                DiscountValue = message.DiscountValue,
+                Active = true,
+                Used = false,
+                Quantity = message.Quantity,
+                DiscountVoucherType = message.DiscountVoucherType,
+                Percentage = message.Percentage,
+                UsageDate = message.UsageDate,
+                ExpirationDate = message.ExpirationDate,
+
+            });
+
+            if (result == false) {
+                await _mediatorHandler.PublishNotification(new DomainNotification("voucher", "Error creating voucher!"));
+                return false;
+            }
+
+            return await _orderRepository.UnitOfWork.CommitAsync();
+        }
 
         private bool ValidateCommand(Command message)
         {
