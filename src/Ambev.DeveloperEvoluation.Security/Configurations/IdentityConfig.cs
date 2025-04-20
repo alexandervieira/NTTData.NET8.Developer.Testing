@@ -19,11 +19,7 @@ public static class IdentityConfig
                 .AddDataProtection();
 
         services.AddJwksManager(options => options.Algorithm = Algorithm.ES256)
-            .PersistKeysToDatabaseStore<AuthDbContext>().PersistKeysInMemory();
-
-        //services.AddDbContext<AuthDbContext>(options =>
-        //    options.UseNpgsql(configuration.GetConnectionString("AuthConnection"),
-        //                             providerOptions => providerOptions.EnableRetryOnFailure()));
+            .PersistKeysToDatabaseStore<AuthDbContext>();                                
 
         services.AddJwtConfiguration(configuration);
 

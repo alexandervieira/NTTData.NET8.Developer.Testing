@@ -12,6 +12,7 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Sales
         Task<Order?> GetDraftOrderByCustomerId(Guid CustomerId);
         void Add(Order order);
         void Update(Order order);
+        void UpdateDetach(Order order);
 
         Task<OrderItem?> GetItemById(Guid id);
         Task<OrderItem?> GetItemByOrder(Guid orderId, Guid productId);
@@ -19,5 +20,6 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Sales
         void UpdateItem(OrderItem orderItem);
         void RemoveItem(OrderItem orderItem);
         Task<Voucher?> GetVoucherByCode(string code);
+        Task<bool> AddVoucher(Voucher voucher);
     }
 }

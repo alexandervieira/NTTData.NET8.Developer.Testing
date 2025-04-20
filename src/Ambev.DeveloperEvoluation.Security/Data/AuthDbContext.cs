@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using NetDevPack.Security.JwtSigningCredentials;
 using NetDevPack.Security.JwtSigningCredentials.Store.EntityFrameworkCore;
+using System;
 
 namespace Ambev.DeveloperEvoluation.Security.Data;
 
@@ -14,6 +15,38 @@ public class AuthDbContext : IdentityDbContext, ISecurityKeyContext
     public DbSet<SecurityKeyWithPrivate> SecurityKeys { get; set; }        
 
     public AuthDbContext(DbContextOptions<AuthDbContext> options) : base(options) { }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ConvertDateTimePropertiesToUtc();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges()
+    {
+        ConvertDateTimePropertiesToUtc();
+        return base.SaveChanges();
+    }
+
+    public void ConvertDateTimePropertiesToUtc()
+    {
+        foreach (var entry in ChangeTracker.Entries()) 
+        {
+            if (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+            {
+                foreach (var property in entry.Properties)
+                {
+                    if (property.Metadata.ClrType == typeof(DateTime) && property.CurrentValue is DateTime dateTime)
+                    {
+                        property.CurrentValue = dateTime.Kind == DateTimeKind.Utc
+                            ? dateTime
+                            : dateTime.ToUniversalTime();
+                    }
+                }
+            }
+        }
+    }
+
 }
 
 public class DefaultDbContextFactory : IDesignTimeDbContextFactory<AuthDbContext>

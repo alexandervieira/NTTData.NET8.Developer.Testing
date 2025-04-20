@@ -21,6 +21,9 @@
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
 		<PackageReference Include="NetDevPack.Security.JwtExtensions" Version="1.0.1" />
 		<PackageReference Include="NetDevPack.Security.JwtSigningCredentials.AspNetCore" Version="1.0.3" />
-		<PackageReference Include="NetDevPack.Security.JwtSigningCredentials.Store.EntityFrameworkCore" Version="1.0.3" />
+		<PackageReference Include="NetDevPack.Security.JwtSigningCredentials.Store.EntityFrameworkCore" Version="1.0.3" />		
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Ambev.DeveloperEvaluation.Domain\Ambev.DeveloperEvaluation.Domain.csproj" />
 	</ItemGroup>
 </Project>

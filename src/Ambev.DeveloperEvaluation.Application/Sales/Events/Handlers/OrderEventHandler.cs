@@ -28,33 +28,45 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Events.Handlers
 
         public Task Handle(OrderDraftStartedEvent notification, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("OrderDraftStartedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", notification.OrderId, notification.CustomerId);
+            _logger.LogInformation("OrderDraftStartedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                                    notification.OrderId, notification.CustomerId);
             return Task.CompletedTask;
         }
 
         public Task Handle(OrderItemAddedEvent notification, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("OrderItemAddedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}, ProductId: {ProductId}", notification.OrderId, notification.CustomerId, notification.ProductId);
+            _logger.LogInformation("OrderItemAddedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}, ProductId: {ProductId}", 
+                                    notification.OrderId, notification.CustomerId, notification.ProductId);
             return Task.CompletedTask;
         }
 
         public async Task Handle(OrderStockRejectedEvent message, CancellationToken cancellationToken)
         {
-            _logger.LogWarning("OrderStockRejectedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", message.OrderId, message.CustomerId);
+            _logger.LogWarning("OrderStockRejectedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                                message.OrderId, message.CustomerId);
             await _mediatorHandler.SendCommand(new CancelOrderProcessingCommand(message.OrderId, message.CustomerId));
         }
 
         public async Task Handle(OrderPaymentCompletedEvent message, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("OrderPaymentCompletedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", message.OrderId, message.CustomerId);
+            _logger.LogInformation("OrderPaymentCompletedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                                    message.OrderId, message.CustomerId);
             await _mediatorHandler.SendCommand(new FinalizeOrderCommand(message.OrderId, message.CustomerId));
         }
 
         public async Task Handle(OrderPaymentRejectedEvent message, CancellationToken cancellationToken)
         {
-            _logger.LogError("OrderPaymentRejectedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", message.OrderId, message.CustomerId);
+            _logger.LogError("OrderPaymentRejectedEvent handled for OrderId: {OrderId}, CustomerId: {CustomerId}", 
+                             message.OrderId, message.CustomerId);
             await _mediatorHandler.SendCommand(new CancelOrderProcessingAndRestockCommand(message.OrderId, message.CustomerId));
-        }     
+        }
+
+        public Task Handle(VoucherAppliedToOrderEvent notification, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"VoucherAppliedToOrderEvent handled for OrderId: {notification.OrderId}, " +
+                                   $"CustomerId: {notification.CustomerId}, VoucherCode: {notification.VoucherId}");
+            return Task.CompletedTask;
+        }
 
         public Task Handle(OrderProductAddedEvent notification, CancellationToken cancellationToken)
         {
@@ -70,11 +82,7 @@ namespace Ambev.DeveloperEvaluation.Application.Sales.Events.Handlers
         {
             throw new NotImplementedException();
         }
-
-        public Task Handle(VoucherAppliedToOrderEvent notification, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 
 }
