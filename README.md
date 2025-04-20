@@ -66,7 +66,6 @@ Consulte <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Test
 
 ![.Net][DOTNET_BADGE]
 ![C#][CSHARP_BADGE]
-![Azure][AZURE_BADGE]
 ![Swagger][SWAGGER_BADGE]
 ![POSTGRESQL_BADGE]
 ![REDIS_BADGE]
@@ -137,24 +136,29 @@ Consulte <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Test
 
 ## Estrutura do Projeto
 ```
-src/
-├── Ambev.DeveloperEvaluation.Application/    # Application services, commands and queries
-│   ├── Catalog/
-│   ├── Sales/
-│   └── Payments/
-├── Ambev.DeveloperEvaluation.Domain/         # Domain entities and interfaces
-│   ├── Entities/
-│   ├── Interfaces/
-│   └── Services/
-├── Ambev.DeveloperEvaluation.Infrastructure/ # Infrastructure implementations
-│   ├── Data/
-│   ├── Repositories/
-│   └── Services/
-├── Ambev.DeveloperEvaluation.WebApi/         # API Controllers and configurations
-├── Ambev.DeveloperEvaluation.Common/         # Shared components and utilities
-└── tests/
-    ├── UnitTests/
-    └── IntegrationTests/
+src/ 
+├── Ambev.DeveloperEvaluation.Application/    # Serviços de aplicação, comandos e consultas 
+│   ├── Catalog/ 
+│   ├── Sales/ 
+│   └── Payments/ 
+├── Ambev.DeveloperEvaluation.Domain/         # Entidades e interfaces do domínio 
+│   ├── Entities/ 
+│   ├── Interfaces/ 
+│   └── Services/ 
+├── Ambev.DeveloperEvaluation.Infrastructure/ # Implementações de infraestrutura 
+│   ├── Data/ 
+│   ├── Repositories/ 
+│   └── Services/ 
+├── Ambev.DeveloperEvaluation.WebApi/         # Controladores e configurações da API 
+├── Ambev.DeveloperEvaluation.Common/         # Componentes e utilitários compartilhados 
+├── Ambev.DeveloperEvaluation.IoC/            # Configuração de injeção de dependência 
+├── Ambev.DeveloperEvaluation.ORM/            # Configuração e mapeamento do banco de dados 
+├── Ambev.DeveloperEvaluation.Security/       # Gerenciamento de autenticação e autorização 
+└── tests/ 
+├── Ambev.DeveloperEvaluation.Unit/       # Testes unitários 
+├── Ambev.DeveloperEvaluation.Integration/# Testes de integração 
+└── Ambev.DeveloperEvaluation.Functional/ # Testes funcionais
+
 ```
 
 ### Toda a aplicação é baseada em uma solução única com X API's e uma aplicação web
@@ -183,10 +187,15 @@ From the solution root directory:
 
 ```bash
 # Create new migration
-dotnet ef migrations add InitialMigration --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
+
+dotnet ef migrations add InitialMigration --startup-project ../Ambev.DeveloperEvaluation.WebApi --context DefaultContext
+dotnet ef migrations add InitialIdentity --startup-project ../Ambev.DeveloperEvaluation.WebApi --context AuthDbContext
 
 # Apply migrations
-dotnet ef database update --project src/Ambev.DeveloperEvaluation.ORM --startup-project src/Ambev.DeveloperEvaluation.WebApi
+
+dotnet ef database update --startup-project ../Ambev.DeveloperEvaluation.WebApi --context DefaultContext
+dotnet ef database update --startup-project ../Ambev.DeveloperEvaluation.WebApi --context AuthDbContext
+
 ```
 
 ### 3. Build and Run
@@ -206,6 +215,8 @@ The API will be available at:
 - HTTP: http://localhost:5119
 - HTTPS: https://localhost:7181
 - Swagger UI: https://localhost:7181/swagger
+- IIS: http://localhost:44312
+- Docker: http://localhost:8080 or https://localhost:8081
 
 ### 4. Running Tests
 ```bash
@@ -252,6 +263,13 @@ Available via Swagger UI when running the application.
 ## Docker Support
 The solution includes Docker support with multi-stage builds and Docker Compose for local development.
 
+## Logging
+Logs have been enabled to aid in observability.
+- Serilog for structured logging
+- Logging to console and file
+- Different log levels (Information, Warning, Error)
+- Logs directory location: logs/log-yyyymmdd.txt
+
 To build and run with Docker:
 
 ```bash
@@ -265,27 +283,27 @@ docker-compose up -d
 docker-compose down
 ```
 
-## Erros e solicitações de recursos
-Tem um bug ou uma solicitação de recurso? Leia primeiro as [diretrizes do problema](https://reponame/blob/master/CONTRIBUTING.md)  e pesquise os problemas existentes e encerrados. [abra um novo problema](https://github.com/alexandervieira/repositorio-base/issues).
+## Bugs and Feature Requests
+Have a bug or feature request? Please read the [issue guidelines](https://reponame/blob/master/CONTRIBUTING.md) first and search for existing and closed issues. [open a new issue](https://github.com/alexandervieira/repositorio-base/issues).
 
-## Contribuição
+## Contributing
 
-Por favor, leia nossas [diretrizes de contribuição](https://reponame/blob/master/CONTRIBUTING.md). Estão incluídas instruções para abrir questões, padrões de codificação e notas sobre o desenvolvimento.
+Please read our [contributing guidelines](https://reponame/blob/master/CONTRIBUTING.md). Instructions for opening issues, coding standards, and development notes are included.
 
-## Criador
+## Creator
 
 - <https://github.com/alexandervsilva>
 
-## Agradecimentos
+## Acknowledgements
 
-Obrigado por consultar, divulgar ou contribuir.
+Thank you for reviewing, sharing, or contributing.
 
-## Direitos e licença
+## Rights and License
 
-Código e documentação com copyright 2021 dos autores. Código divulgado sob a [MIT License](https://github.com/alexandervieira/repositorio-base/blob/master/LICENSE).
+Code and documentation copyright 2021 by the authors. Code released under the [MIT License](https://github.com/alexandervieira/repositorio-base/blob/master/LICENSE).
 
-<h3>Documentações que podem ajudar</h3>
+<h3>Documentation that may help</h3>
 
-[📝 Como criar um Pull Request](https://www.atlassian.com/br/git/tutorials/making-a-pull-request)
+[📝 How to create a Pull Request](https://www.atlassian.com/br/git/tutorials/making-a-pull-request)
 
 [💾 Commit pattern](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
