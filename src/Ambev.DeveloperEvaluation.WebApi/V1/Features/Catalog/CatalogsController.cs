@@ -72,7 +72,7 @@ public class CatalogsController : BaseController
     /// Retrieves products
     /// </summary>    
     /// <returns>The products if found</returns>
-    [HttpGet("products")]
+    [HttpGet("redis-cached-products")]
     [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
