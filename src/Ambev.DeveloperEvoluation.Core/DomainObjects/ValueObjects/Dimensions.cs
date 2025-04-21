@@ -1,7 +1,7 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
-using Ambev.DeveloperEvaluation.Domain.Validation;
+using FluentValidation;
 
-namespace Ambev.DeveloperEvaluation.Domain.ValueObjects
+namespace Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects
 {
     public class Dimensions
     {
@@ -36,5 +36,23 @@ namespace Ambev.DeveloperEvaluation.Domain.ValueObjects
             };
         }
 
+    }
+
+    public class DimensionsValidator : AbstractValidator<Dimensions>
+    {
+        public DimensionsValidator()
+        {
+            RuleFor(d => d.Height)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Height cannot be less than or equal to 0");
+
+            RuleFor(d => d.Width)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Width cannot be less than or equal to 0");
+
+            RuleFor(d => d.Depth)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Depth cannot be less than or equal to 0");
+        }
     }
 }

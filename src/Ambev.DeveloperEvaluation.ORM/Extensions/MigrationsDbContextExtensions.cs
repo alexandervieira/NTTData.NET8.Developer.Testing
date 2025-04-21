@@ -1,5 +1,5 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+﻿using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
+using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -73,10 +73,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Extensions
                         context.SaveChanges();
                         var productsEspeciais = new List<Product>
                         {
-                            new Product(shirtCategory.Id, "Camiseta 100% algodão", 99.00M, true, "Camiseta Developer", "Camiseta1.jpg", new Rating(2.9,10), new Dimensions(5,5,5)),
-                            new Product(shirtCategory.Id, "Camiseta 100% algodão", 89.00M, true, "Camiseta Code", "camiseta2.jpg",  new Rating(2.9,10), new Dimensions(5,5,5)),
-                            new Product(mugCategory.Id, "Aliquam erat volutpat", 49.00M, true, "Caneca StarBugs", "caneca1.jpg",  new Rating(2.9,10), new Dimensions(5,5,5)),
-                            new Product(mugCategory.Id, "Aliquam erat volutpat", 45.00M, true, "Caneca Code", "caneca2.jpg",  new Rating(2.9,10), new Dimensions(5,5,5))
+                            new Product(shirtCategory.Id, "Camiseta Developer", 99.00M, true, "Camiseta 100% algodão", "Camiseta1.jpg", new Rating(2.9,10), new Dimensions(5,5,5)),
+                            new Product(shirtCategory.Id, "Camiseta Code",      89.00M, true, "Camiseta 100% algodão", "camiseta2.jpg", new Rating(2.9,10), new Dimensions(5,5,5)),
+                            new Product(mugCategory.Id,   "Caneca StarBugs",    49.00M, true, "Aliquam erat volutpat", "caneca1.jpg",   new Rating(2.9,10), new Dimensions(5,5,5)),
+                            new Product(mugCategory.Id,   "Caneca Code",        45.00M, true, "Aliquam erat volutpat", "caneca2.jpg",   new Rating(2.9,10), new Dimensions(5,5,5))
 
                         };
 
@@ -85,10 +85,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Extensions
                         context.SaveChanges();
                         var featuredProducts = new List<Product>
                         {
-                            new Product(iphoneCategory.Id, "Aliquam erat volutpat *", 1998.00M, true, "IPhone*", "iphone.png",  new Rating(2.9,10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat *", 1199.00M, true, "Samsung Galaxy S4*", "galaxy-s4.jpg", new Rating(2.9, 10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat *", 1289.00M, true, "Samsung Galaxy Note*", "galaxy-note.jpg", new Rating(2.9, 10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat *", 1389.00M, true, "Z1*", "Z1.png",  new Rating(2.9,10), new Dimensions(5,5,5))
+                            new Product(iphoneCategory.Id,     "IPhone*",              1998.00M, true, "Aliquam erat volutpat *", "iphone.png",      new Rating(2.9,10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Samsung Galaxy S4*",   1199.00M, true, "Aliquam erat volutpat *", "galaxy-s4.jpg",   new Rating(2.9, 10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Samsung Galaxy Note*", 1289.00M, true, "Aliquam erat volutpat *", "galaxy-note.jpg", new Rating(2.9, 10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Z1*",                  1389.00M, true, "Aliquam erat volutpat *", "Z1.png",          new Rating(2.9,10), new Dimensions(5,5,5))
 
                         };
 
@@ -97,10 +97,10 @@ namespace Ambev.DeveloperEvaluation.ORM.Extensions
                         context.SaveChanges();
                         var products = new List<Product>
                         {
-                            new Product(iphoneCategory.Id, "Aliquam erat volutpat", 2998.00M, true, "IPhone", "iphone.png", new Rating(2.9, 10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat", 989.00M, true, "Samsung Galaxy S4", "galaxy-s4.jpg", new Rating(2.9, 10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat", 1179.00M, true, "Samsung Galaxy Note", "galaxy-note.jpg",  new Rating(2.9,10), new Dimensions(5,5,5)),
-                            new Product(smartphoneCategory.Id, "Aliquam erat volutpat", 1089.00M, true, "Z1", "Z1.png", new Rating(2.9, 10), new Dimensions(5,5,5))
+                            new Product(iphoneCategory.Id,     "IPhone",               2998.00M, true, "Aliquam erat volutpat", "iphone.png",       new Rating(2.9, 10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Samsung Galaxy S4",    989.00M, true,  "Aliquam erat volutpat", "galaxy-s4.jpg",    new Rating(2.9, 10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Samsung Galaxy Note",  1179.00M, true, "Aliquam erat volutpat", "galaxy-note.jpg",  new Rating(2.9,10), new Dimensions(5,5,5)),
+                            new Product(smartphoneCategory.Id, "Z1",                   1089.00M, true, "Aliquam erat volutpat", "Z1.png",           new Rating(2.9, 10), new Dimensions(5,5,5))
 
                         };
 

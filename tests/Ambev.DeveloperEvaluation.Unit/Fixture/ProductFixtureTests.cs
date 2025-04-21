@@ -1,7 +1,5 @@
-﻿
+﻿using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
-using Ambev.DeveloperEvaluation.Unit.Domain.Entities;
 using Bogus;
 using Xunit;
 

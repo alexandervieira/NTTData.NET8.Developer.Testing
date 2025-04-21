@@ -1,12 +1,12 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvoluation.Core.Data;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
 {
     public interface IProductRepository : IRepository<Product>
-    {
-        Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string? query, string order);        
+    {            
         Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string? query);
         Task<Product?> GetById(Guid id);
         Task<IEnumerable<Product>> GetByCategory(int code);
@@ -20,6 +20,8 @@ namespace Ambev.DeveloperEvaluation.Domain.Repositories.Catalog
 
         Task<Category> AddCategory(Category category);
         Task<Category> UpdateCategory(Category category);
-        
+
+        Task<IDbContextTransaction> BeginTransactionAsync();        
+
     }
 }

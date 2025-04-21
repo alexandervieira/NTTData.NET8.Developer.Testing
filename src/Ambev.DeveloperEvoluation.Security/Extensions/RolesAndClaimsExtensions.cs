@@ -1,7 +1,6 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Entities;
 using Ambev.DeveloperEvaluation.Domain.Enums;
 using Ambev.DeveloperEvaluation.Domain.Repositories;
-using Ambev.DeveloperEvoluation.Security.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,7 @@ namespace Ambev.DeveloperEvoluation.Security.Extensions
 {
     public static class RolesAndClaimsExtensions
     {
-        public static async Task SeedDataIdentityRolesAndClaims<TContext>(this IApplicationBuilder app, Action<TContext> seeder)
+        public static async void SeedDataIdentityRolesAndClaims<TContext>(this IApplicationBuilder app, Action<TContext> seeder)
         where TContext : DbContext
         {
             using var serviceScope = app.ApplicationServices.GetRequiredService<IServiceScopeFactory>().CreateScope();
@@ -45,11 +44,7 @@ namespace Ambev.DeveloperEvoluation.Security.Extensions
 
             // Criar claims padrão
             var defaultClaims = new List<Claim>
-            {
-                //new Claim("Permission", "Read"),
-                //new Claim("Permission", "Write"),
-                //new Claim("Permission", "Edit"),
-                //new Claim("Permission", "Delete"),
+            {               
                 new Claim("Permissions", "Read,Write,Edit,Delete"),
                 new Claim("Role", UserRole.Admin.ToString()),
                 new Claim("Roles", "Admin,Customer,Manager"),

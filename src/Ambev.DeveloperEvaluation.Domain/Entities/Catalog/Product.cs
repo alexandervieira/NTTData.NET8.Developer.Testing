@@ -1,7 +1,7 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
+using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Validation.Catalog;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
 using Ambev.DeveloperEvoluation.Core.DomainObjects;
 
 namespace Ambev.DeveloperEvaluation.Domain.Entities.Catalog

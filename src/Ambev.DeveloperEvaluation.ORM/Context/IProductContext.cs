@@ -5,6 +5,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
 {
     public interface IProductContext
     {
-        IMongoCollection<Product> Products { get; }
+        IMongoCollection<MongoProduct> Products { get; }
+        IMongoCollection<MongoCategory> Categories { get; }
     }
 }

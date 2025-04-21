@@ -12,14 +12,15 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
     public class ProductContext : IProductContext
     {
         private readonly IMediatorHandler _mediatorHandler;
-        public IMongoCollection<Product> Products { get; }
+        public IMongoCollection<MongoProduct> Products { get; }
+        public IMongoCollection<MongoCategory> Categories { get; }
 
         public ProductContext(IConfiguration configuration, IMediatorHandler mediatorHandler)
         {
             _mediatorHandler = mediatorHandler;
 
             // Configurações de serialização (uma vez)
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Product)))
+            if (!BsonClassMap.IsClassMapRegistered(typeof(MongoProduct)))
             {
                 BsonClassMap.RegisterClassMap<BaseEntity>(map =>
                 {
@@ -29,18 +30,18 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
                     map.UnmapProperty(t => t.Notifications);
                 });
 
-                BsonClassMap.RegisterClassMap<Product>(map =>
+                BsonClassMap.RegisterClassMap<MongoProduct>(map =>
                 {
                     map.AutoMap();
-                    map.MapCreator(p => new Product());
+                    map.MapCreator(p => new MongoProduct());
                     map.MapProperty(p => p.CategoryId).SetSerializer(new GuidSerializer(GuidRepresentation.CSharpLegacy));
                 });
 
-                BsonClassMap.RegisterClassMap<Category>(map =>
+                BsonClassMap.RegisterClassMap<MongoCategory>(map =>
                 {
                     map.AutoMap();
-                    map.MapCreator(c => new Category());
-                    map.UnmapProperty(c => c.Products);
+                    map.MapCreator(c => new MongoCategory());
+                    //map.UnmapProperty(c => c.Products);
                 });
             }
 
@@ -48,16 +49,21 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
             var client = new MongoClient(configuration.GetValue<string>("MongoDBSettings:ConnectionString"));
             var database = client.GetDatabase(configuration.GetValue<string>("MongoDBSettings:DatabaseName"));
 
-            Products = database.GetCollection<Product>(configuration.GetValue<string>("MongoDBSettings:CollectionName"));
+            Products = database.GetCollection<MongoProduct>(configuration.GetValue<string>("MongoDBSettings:ProductCollection"));
+
+            Categories = database.GetCollection<MongoCategory>(configuration.GetValue<string>("MongoDBSettings:CategoryCollection"));          
+           
 
             // Garante que o índice de texto exista
             CreateTextIndexIfNotExists(Products).GetAwaiter().GetResult();
+
+            CreateTextIndexIfNotExists(Categories).GetAwaiter().GetResult();
 
             // Seed de dados
             ProductContextSeed.SeedData(Products);
         }
 
-        private async Task CreateTextIndexIfNotExists(IMongoCollection<Product> collection)
+        private async Task CreateTextIndexIfNotExists(IMongoCollection<MongoProduct> collection)
         {
             var indexes = await collection.Indexes.ListAsync();
             var indexList = await indexes.ToListAsync();
@@ -67,14 +73,34 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
 
             if (!hasTextIndex)
             {
-                var indexKeys = Builders<Product>.IndexKeys
+                var indexKeys = Builders<MongoProduct>.IndexKeys
                     .Text(p => p.Title)
                     .Text(p => p.Description);
 
-                var model = new CreateIndexModel<Product>(indexKeys);
+                var model = new CreateIndexModel<MongoProduct>(indexKeys);
                 await collection.Indexes.CreateOneAsync(model);
             }
         }
+
+        private async Task CreateTextIndexIfNotExists(IMongoCollection<MongoCategory> collection)
+        {
+            var indexes = await collection.Indexes.ListAsync();
+            var indexList = await indexes.ToListAsync();
+
+            var hasTextIndex = indexList.Any(index =>
+                index.Contains("weights") && index["weights"].AsBsonDocument.Names.Contains("Title"));
+
+            if (!hasTextIndex)
+            {
+                var indexKeys = Builders<MongoCategory>.IndexKeys
+                    .Text(p => p.Name)
+                    .Text(p => p.Code);
+
+                var model = new CreateIndexModel<MongoCategory>(indexKeys);
+                await collection.Indexes.CreateOneAsync(model);
+            }
+        }
+
     }
     
 }

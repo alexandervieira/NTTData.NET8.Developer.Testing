@@ -1,20 +1,20 @@
-﻿using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+﻿using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
+using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using MongoDB.Driver;
 
 namespace Ambev.DeveloperEvaluation.ORM.Context
 {
     public class ProductContextSeed
     {
-        public static void SeedData(IMongoCollection<Product> ProductCollection)
+        public static void SeedData(IMongoCollection<MongoProduct> ProductCollection)
         {
             // Criação das categorias
-            var shirtCategory = new Category("Camisas", 100);
-            var mugCategory = new Category("Canecas", 101);
-            var smartphoneCategory = new Category("Smartphone", 102);
-            var iphoneCategory = new Category("Iphone", 103);
+            var shirtCategory = new MongoCategory("Camisas", 100);
+            var mugCategory = new MongoCategory("Canecas", 101);
+            var smartphoneCategory = new MongoCategory("Smartphone", 102);
+            var iphoneCategory = new MongoCategory("Iphone", 103);
 
-            var categories = new Dictionary<Guid, Category>
+            var categories = new Dictionary<Guid, MongoCategory>
             {
                 { shirtCategory.Id, shirtCategory },
                 { mugCategory.Id, mugCategory },
@@ -25,7 +25,7 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
             categories.Values.ToList().ForEach(p => p.CreatedAt = DateTime.UtcNow);
 
             // Persiste categorias (se ainda não existem)
-            var categoryCollection = ProductCollection.Database.GetCollection<Category>("Categories");
+            var categoryCollection = ProductCollection.Database.GetCollection<MongoCategory>("Categories");
             bool categoriesExist = categoryCollection.Find(c => true).Any();
             if (!categoriesExist)
             {
@@ -41,29 +41,29 @@ namespace Ambev.DeveloperEvaluation.ORM.Context
             }
         }
 
-        private static IEnumerable<Product> GetPreconfiguredProducts(Dictionary<Guid, Category> categories)
+        private static IEnumerable<MongoProduct> GetPreconfiguredProducts(Dictionary<Guid, MongoCategory> categories)
         {
             var iphoneId = categories.First(c => c.Value.Name == "Iphone").Key;
             var smartphoneId = categories.First(c => c.Value.Name == "Smartphone").Key;
             var shirtId = categories.First(c => c.Value.Name == "Camisas").Key;
             var mugId = categories.First(c => c.Value.Name == "Canecas").Key;
 
-            var products = new List<Product>
+            var products = new List<MongoProduct>
             {
-                new Product(iphoneId, "Aliquam erat volutpat", 2998.00M, true, "IPhone", "iphone.png", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(smartphoneId, "Aliquam erat volutpat", 989.00M, true, "Samsung Galaxy S4", "galaxy-s4.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(smartphoneId, "Aliquam erat volutpat", 1179.00M, true, "Samsung Galaxy Note", "galaxy-note.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(smartphoneId, "Aliquam erat volutpat", 1089.00M, true, "Z1", "Z1.png", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(shirtId, "Camiseta 100% algodão", 99.00M, true, "Camiseta Developer", "Camiseta1.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(shirtId, "Camiseta 100% algodão", 89.00M, true, "Camiseta Code", "camiseta2.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(mugId, "Aliquam erat volutpat", 49.00M, true, "Caneca StarBugs", "caneca1.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5)),
-                new Product(mugId, "Aliquam erat volutpat", 45.00M, true, "Caneca Code", "caneca2.jpg", new Rating(2.9, 10), new Dimensions(5, 5, 5))
+                new MongoProduct(iphoneId,     "IPhone",               2998.00M, true, "Aliquam erat volutpat", "iphone.png",      50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(smartphoneId, "Samsung Galaxy S4",    989.00M, true,  "Aliquam erat volutpat", "galaxy-s4.jpg",   50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(smartphoneId, "Samsung Galaxy Note",  1179.00M, true, "Aliquam erat volutpat", "galaxy-note.jpg", 50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(smartphoneId, "Z1",                   1089.00M, true, "Aliquam erat volutpat", "Z1.png",          50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(shirtId,      "Camiseta Developer",   99.00M, true,   "Camiseta 100% algodão", "Camiseta1.jpg",   50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(shirtId,      "Camiseta Code",        89.00M, true,   "Camiseta 100% algodão", "camiseta2.jpg",   50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(mugId,        "Caneca StarBugs",      49.00M, true,   "Aliquam erat volutpat", "caneca1.jpg",     50, new Rating(2.9, 10), new Dimensions(5, 5, 5)),
+                new MongoProduct(mugId,        "Caneca Code",          45.00M, true,   "Aliquam erat volutpat", "caneca2.jpg",     50, new Rating(2.9, 10), new Dimensions(5, 5, 5))
             };
-
+                        
             products.ForEach(p => p.CreatedAt = DateTime.UtcNow);
+            products.ForEach(p => p.UpdatedAt = null);
 
             return products;
         }
-
     }
 }
