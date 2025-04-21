@@ -23,17 +23,6 @@ Front-End Image here
 
 ## Description
 
-- Describe your project here
-
-## List of useful GIT commands
-
-See <a href="https://github.com/alexandervieira/repositorio-base/blob/master/git.md">here</a>.
-
-## Photo Gallery
-
-See <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/blob/master/.doc/galery.md">aqui</a>.
-
-## Notes
 - The project was developed with the intention of being a base repository for projects in .NET 8, using the best development practices.
 - The project is an example of an e-commerce application, with catalog, sales and payments functionalities.
 - The project is a web application, with a RESTful API and a front-end in Vue.js.
@@ -45,7 +34,18 @@ See <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/b
 - The project is an example of a Clean Code application, with clean and readable code. - The project is an example of a SOLID application, with object-oriented design principles.
 - The project is an example of a TDD application, with automated tests.
 
-- Users used in the tests
+## List of useful GIT commands
+
+See <a href="https://github.com/alexandervieira/repositorio-base/blob/master/git.md">here</a>.
+
+## Photo Gallery
+
+See <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/blob/master/.doc/galery.md">aqui</a>.
+
+## Notes
+
+### Users used in the tests
+
 {
   "email": "admin@domain.com",
   "password": "Admin@123"
@@ -66,9 +66,6 @@ See <a href="https://github.com/alexandervieira/NTTData.NET8.Developer.Testing/b
   "email": "user3@teste.com",
   "password": "Teste@123"
 }
-
-## Security
-- Implemented with ASP.NET Identity, using Roles and Claims
 
 ## Technologies
 
@@ -292,15 +289,18 @@ dotnet test tests/Ambev.DeveloperEvaluation.IntegrationTests
 ## API Documentation
 Available via Swagger UI when running the application.
 
-## Docker Support
-The solution includes Docker support with multi-stage builds and Docker Compose for local development.
-
 ## Logging
 Logs have been enabled to aid in observability.
 - Serilog for structured logging
 - Logging to console and file
 - Different log levels (Information, Warning, Error)
 - Logs directory location: logs/log-yyyymmdd.txt
+
+## Security
+- Implemented with ASP.NET Identity, using Roles and Claims
+
+## Docker Support
+- The solution includes Docker support with multi-stage builds and Docker Compose for local development.
 
 To build and run with Docker:
 
