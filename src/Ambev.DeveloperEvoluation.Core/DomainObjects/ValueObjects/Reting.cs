@@ -1,7 +1,7 @@
 ﻿using Ambev.DeveloperEvaluation.Common.Validation;
-using Ambev.DeveloperEvaluation.Domain.Validation;
+using FluentValidation;
 
-namespace Ambev.DeveloperEvaluation.Domain.ValueObjects
+namespace Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects
 {
     public class Rating
     {
@@ -23,6 +23,20 @@ namespace Ambev.DeveloperEvaluation.Domain.ValueObjects
                 IsValid = result.IsValid,
                 Errors = result.Errors.Select(o => (ValidationErrorDetail)o)
             };
+        }
+    }
+
+    public class RatingValidator : AbstractValidator<Rating>
+    {
+        public RatingValidator()
+        {
+            RuleFor(r => r.Rate)
+                .InclusiveBetween(0, 5)
+                .WithMessage("Rate must be between 0 and 5");
+
+            RuleFor(r => r.Count)
+                .GreaterThanOrEqualTo(0)
+                .WithMessage("Count cannot be less than 0");
         }
     }
 }

@@ -21,7 +21,9 @@ using Ambev.DeveloperEvaluation.ORM.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.ORM.Repositories.Payments;
 using Ambev.DeveloperEvaluation.ORM.Repositories.Sales;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
+using Ambev.DeveloperEvoluation.Core.Data;
 using Ambev.DeveloperEvoluation.Core.Messages.Commons.IntegrationEvents;
+using Ambev.DeveloperEvoluation.Domain.Events.Catalog;
 using Ambev.DeveloperEvoluation.Security.Services;
 using Ambev.DeveloperEvoluation.Security.Services.AspNetUser;
 using MediatR;
@@ -45,17 +47,21 @@ public class InfrastructureModuleInitializer : IModuleInitializer
 
         builder.Services.AddScoped<IAspNetUser, AspNetUser>();
 
+        //builder.Services.AddScoped<IUnitOfWork, UnitOfWorkTransaction>();
+        builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<DefaultContext>());
         builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<DefaultContext>());
-
         builder.Services.AddScoped<IProductContext, ProductContext>();
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
 
         #region Catalog
         builder.Services.AddScoped<IProductRepository, ProductRepository>();
+        builder.Services.AddScoped<IProductRepositoryMongo, ProductRepositoryMongo>();
         builder.Services.AddScoped<IProductService, ProductService>();
+        builder.Services.AddScoped<IProductServiceMongo, ProductServiceMongo>();
         builder.Services.AddScoped<IStockService, StockService>();
 
+        builder.Services.AddScoped<INotificationHandler<ProductCreatedEvent>, ProductEventHandler>();
         builder.Services.AddScoped<INotificationHandler<ProductLowStockEvent>, ProductEventHandler>();
         builder.Services.AddScoped<INotificationHandler<OrderStartedEvent>, ProductEventHandler>();
         builder.Services.AddScoped<INotificationHandler<OrderProcessingCancelledEvent>, ProductEventHandler>();

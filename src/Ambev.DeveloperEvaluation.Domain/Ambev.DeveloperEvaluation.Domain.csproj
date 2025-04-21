@@ -4,6 +4,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Validation\DimensionsValidator.cs" />
+    <Compile Remove="Validation\RetingValidator.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Exceptions\" />

@@ -3,28 +3,28 @@ using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
+using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
+using Ambev.DeveloperEvoluation.Domain.Events.Catalog;
 using AutoMapper;
 
 namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
 {
     public class ProductService : IProductService
-    {
+    {        
         private readonly IProductRepository _productRepository;
         private readonly IStockService _stockService;
         private readonly IMapper _mapper;
+        private readonly IMediatorHandler _mediatorHandler;
 
-        public ProductService(IProductRepository productRepository, 
-                              IStockService stockService, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IStockService stockService, 
+                              IMapper mapper, IMediatorHandler mediatorHandler)
         {
             _productRepository = productRepository;
             _stockService = stockService;
             _mapper = mapper;
+            _mediatorHandler = mediatorHandler;
         }
-               
-        public async Task<PaginatedList<ProductResponse>> GetAllAsync(int pageNumber, int pageSize, string? query, string order)
-        {
-            return _mapper.Map<PaginatedList<ProductResponse>>(await _productRepository.GetAllAsync(pageNumber, pageSize, query, order));
-        }
+
         public async Task<PaginatedList<ProductResponse>> GetAll(int pageNumber, int pageSize, string? query)
         {
             return _mapper.Map<PaginatedList<ProductResponse>>(await _productRepository.GetAll(pageNumber, pageSize, query));
@@ -49,16 +49,44 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
         {
             var product = _mapper.Map<Product>(request);            
             if (product == null)
-                throw new ArgumentNullException(nameof(product));            
+                throw new ArgumentNullException(nameof(product));
 
-            var model = await _productRepository.AddProduct(product);
-            if (model == null && !await _productRepository.UnitOfWork.CommitAsync())
+            // Iniciar transação no PostgreSQL
+            using var transaction = await _productRepository.BeginTransactionAsync();
+
+            try
             {
-                throw new DomainException("Failed to add product.");
+
+                var model = await _productRepository.AddProduct(product);
+                if (model == null)
+                {
+                    throw new DomainException("Failed to add product.");
+                }
+
+                var result = await _productRepository.UnitOfWork.CommitAsync();
+                if (!result)
+                {
+                    throw new DomainException("Failed to commit transaction.");
+                }
+
+                var productTomongo = await _productRepository.GetById(model.Id);
+                // Publicar evento de domínio
+                await _mediatorHandler.PublishDomainEvent(new ProductCreatedEvent(productTomongo));               
+
+                // Confirmar transação no PostgreSQL
+                await transaction.CommitAsync();
+
+                var response = _mapper.Map<ProductResponse>(model);
+                return response;
+
             }
-           
-            var response = _mapper.Map<ProductResponse>(model);
-            return response;
+            catch (Exception)
+            {
+                // Reverter transação no PostgreSQL em caso de erro
+                await transaction.RollbackAsync();
+                throw;
+            }                    
+                        
         }
 
         public async Task<ProductResponse> UpdateProduct(UpdateProductRequest request)
@@ -146,4 +174,5 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.Services
             return response;
         }
     }
+    
 }

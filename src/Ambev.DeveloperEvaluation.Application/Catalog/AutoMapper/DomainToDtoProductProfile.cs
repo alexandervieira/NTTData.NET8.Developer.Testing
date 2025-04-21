@@ -14,7 +14,13 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.AutoMapper
                opt => opt.MapFrom(src => src.CreatedAt.ToString("dd/MM/yyyy")))
                   .ForPath(dest => dest.UpdatedAtFormatted,
                opt => opt.MapFrom(src => src.UpdatedAt.Value.ToString("dd/MM/yyyy")));
-            
+
+            CreateMap<MongoProduct, ProductResponse>()
+               .ForPath(dest => dest.CreatedAtFormatted,
+              opt => opt.MapFrom(src => src.CreatedAt.ToString("dd/MM/yyyy")))
+                 .ForPath(dest => dest.UpdatedAtFormatted,
+              opt => opt.MapFrom(src => src.UpdatedAt.Value.ToString("dd/MM/yyyy")));               
+
             CreateMap<Category, CategoryResponse>();
             
             CreateMap(typeof(PaginatedList<>), typeof(PaginatedList<>))

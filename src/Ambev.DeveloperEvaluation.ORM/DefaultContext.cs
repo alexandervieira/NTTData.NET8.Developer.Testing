@@ -12,12 +12,15 @@ using Microsoft.Extensions.Configuration;
 using Product = Ambev.DeveloperEvaluation.Domain.Entities.Catalog.Product;
 using Order = Ambev.DeveloperEvaluation.Domain.Entities.Sales.Order;
 using Ambev.DeveloperEvaluation.ORM.Entities;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Ambev.DeveloperEvaluation.ORM;
 
 public class DefaultContext : DbContext, IUnitOfWork
 {
     private readonly IMediatorHandler _mediatorHandler;
+    private IDbContextTransaction _transaction;
+
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Product> Products { get; set; }
     public virtual DbSet<Category> Categories { get; set; }
@@ -77,46 +80,37 @@ public class DefaultContext : DbContext, IUnitOfWork
         if (success) await _mediatorHandler.PublishEvents(this);
 
         return success;
+    }       
+
+    public async Task BeginTransactionAsync()
+    {
+        _transaction = await base.Database.BeginTransactionAsync();
     }
 
-    public bool Commit()
+    public async Task CommitTransactionAsync()
     {
-        foreach (var entry in ChangeTracker.Entries()
-            .Where(entry => entry.Entity.GetType().GetProperty("CreatedAt") != null))
+        if (_transaction != null)
         {
-            if (entry.State == EntityState.Added)
-            {
-                entry.Property("CreatedAt").CurrentValue = DateTime.Now;
-            }
-
-            if (entry.State == EntityState.Modified)
-            {
-                entry.Property("CreatedAt").IsModified = false;
-                entry.Property("UpdatedAt").CurrentValue = DateTime.Now;
-            }
+            await _transaction.CommitAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
         }
-
-        return base.SaveChanges() > 0;
     }
 
-    public void Rollback()
+    public async Task RollbackTransactionAsync()
     {
-        foreach (var entry in ChangeTracker.Entries())
+        if (_transaction != null)
         {
-            switch (entry.State)
-            {
-                case EntityState.Modified:
-                    entry.CurrentValues.SetValues(entry.OriginalValues);
-                    entry.State = EntityState.Unchanged;
-                    break;
-                case EntityState.Added:
-                    entry.State = EntityState.Detached;
-                    break;
-                case EntityState.Deleted:
-                    entry.State = EntityState.Unchanged;
-                    break;
-            }
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
         }
+    }
+
+    public override void Dispose()
+    {
+        _transaction?.Dispose();
+        base.Dispose();
     }
 }
 public class DefaultDbContextFactory : IDesignTimeDbContextFactory<DefaultContext>

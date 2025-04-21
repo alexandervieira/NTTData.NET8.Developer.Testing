@@ -22,6 +22,7 @@ public class CatalogsController : BaseController
     //private readonly IMediator _mediator;
     private readonly IMapper _mapper;
     private readonly IProductService _productService;
+    private readonly IProductServiceMongo _productServiceMongo;
     private readonly IMediatorHandler _mediatorHandler;
     private readonly IDistributedCache _cache;
 
@@ -30,21 +31,24 @@ public class CatalogsController : BaseController
     /// </summary>
     /// <param name="mediatorHandler">The mediator instance</param>
     /// <param name="mapper">The AutoMapper instance</param>
-    public CatalogsController(IMapper mapper, IProductService productService, IMediatorHandler mediatorHandler, IDistributedCache cache)
+    public CatalogsController(IMapper mapper, IProductService productService,
+                             IProductServiceMongo productServiceMongo,
+                             IMediatorHandler mediatorHandler, IDistributedCache cache)
     {
         _mapper = mapper;
         _productService = productService;
+        _productServiceMongo = productServiceMongo;
         _mediatorHandler = mediatorHandler;
         _cache = cache;
     }
 
-    [HttpGet("getproducts")]
+    [HttpGet("mongo-products")]
     [ProducesResponseType(typeof(PaginatedResponse<ProductResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetProducts([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? query = null, [FromQuery] string order = "title asc")
     {
-        var response = await _productService.GetAllAsync(pageNumber, pageSize, query, order);
+        var response = await _productServiceMongo.GetAllAsync(pageNumber, pageSize, query, order);
 
         if (response == null || !response.Any())
             return NotFound(new ApiResponse

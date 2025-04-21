@@ -1,10 +1,11 @@
 ﻿using Ambev.DeveloperEvaluation.Application.Catalog.DTOs;
 using Ambev.DeveloperEvaluation.Application.Catalog.Services;
+using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
 using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvoluation.Core.Data;
 using AutoMapper;
 using FluentAssertions;
@@ -19,16 +20,18 @@ namespace Ambev.DeveloperEvaluation.Unit.Application.Catalog
         private readonly IProductRepository _productRepository = Substitute.For<IProductRepository>();
         private readonly IStockService _stockService = Substitute.For<IStockService>();
         private readonly IMapper _mapper = Substitute.For<IMapper>();
+        private readonly IMediatorHandler _mediatorHandler = Substitute.For<IMediatorHandler>();
         private readonly ProductService _productService;
 
         public ProductServiceTests()
         {
+            _mediatorHandler = Substitute.For<IMediatorHandler>();
             _mapper = Substitute.For<IMapper>();
             _unitOfWork.CommitAsync().Returns(Task.FromResult(true));
             _productRepository = Substitute.For<IProductRepository>();
             _productRepository.UnitOfWork.Returns(_unitOfWork);            
             _stockService = Substitute.For<IStockService>();            
-            _productService = new ProductService(_productRepository, _stockService, _mapper);           
+            _productService = new ProductService(_productRepository, _stockService, _mapper, _mediatorHandler);           
             
         }
 

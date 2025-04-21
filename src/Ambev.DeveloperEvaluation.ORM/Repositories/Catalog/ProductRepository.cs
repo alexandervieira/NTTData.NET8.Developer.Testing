@@ -1,56 +1,19 @@
 ﻿using Ambev.DeveloperEvaluation.Domain.Common;
 using Ambev.DeveloperEvaluation.Domain.Entities.Catalog;
 using Ambev.DeveloperEvaluation.Domain.Repositories.Catalog;
-using Ambev.DeveloperEvaluation.ORM.Context;
 using Ambev.DeveloperEvoluation.Core.Data;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.Bson;
+using Microsoft.EntityFrameworkCore.Storage;
 using MongoDB.Driver;
 
 namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
 {
     public class ProductRepository : BaseRepository<Product>, IProductRepository
     {        
-        private readonly IProductContext _mongoContext;
-        
-        public ProductRepository(DefaultContext context, IProductContext ctx) : base(context)
-        {            
-            _mongoContext = ctx;          
-        }
+                
+        public ProductRepository(DefaultContext context) : base(context) { }
 
-        public IUnitOfWork UnitOfWork => (DefaultContext)_context;
-
-        public async Task<PaginatedList<Product>> GetAllAsync(int pageNumber, int pageSize, string? query, string order)
-        {
-            var filter = Builders<Product>.Filter.Empty;
-
-            if (!string.IsNullOrWhiteSpace(query))
-            {
-                // Filtro com regex (LIKE)
-                filter = Builders<Product>.Filter.Or(
-                    Builders<Product>.Filter.Regex(p => p.Title, new BsonRegularExpression(query, "i")),
-                    Builders<Product>.Filter.Regex(p => p.Description, new BsonRegularExpression(query, "i"))
-                );
-            }
-
-            // Ordenação
-            var sort = Builders<Product>.Sort.Ascending(order);
-            if (order.Contains("desc", StringComparison.OrdinalIgnoreCase))
-            {
-                sort = Builders<Product>.Sort.Descending(order.Replace(" desc", "", StringComparison.OrdinalIgnoreCase));
-            }
-
-            var products = await _mongoContext.Products.Find(filter)
-                                        .Sort(sort)
-                                        .Skip((pageNumber - 1) * pageSize)
-                                        .Limit(pageSize)
-                                        .ToListAsync();
-
-            var count = await _mongoContext.Products.CountDocumentsAsync(filter);
-
-            return new PaginatedList<Product>(products, (int)count, pageNumber, pageSize);
-        }
-
+        public IUnitOfWork UnitOfWork => (DefaultContext)_context;       
 
         public async Task<PaginatedList<Product>> GetAll(int pageNumber, int pageSize, string? query)
         {
@@ -143,6 +106,11 @@ namespace Ambev.DeveloperEvaluation.ORM.Repositories.Catalog
         public void Dispose()
         {
             _context.Dispose();
+        }
+
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _context.Database.BeginTransactionAsync();
         }
         
     }

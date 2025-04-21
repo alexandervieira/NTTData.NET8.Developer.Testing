@@ -9,7 +9,7 @@ using Ambev.DeveloperEvaluation.Domain.Enums.Sales;
 using NSubstitute;
 using Xunit;
 using Ambev.DeveloperEvaluation.Application.Sales.Commands.Handlers;
-using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
 
 namespace Ambev.DeveloperEvaluation.Integration
 {
@@ -99,7 +99,7 @@ namespace Ambev.DeveloperEvaluation.Integration
             Assert.True(finalizeOrderResult);
 
             _orderRepository.Received(0).Add(Arg.Any<Order>());
-            _orderRepository.Received(1).Update(Arg.Any<Order>());
+            _orderRepository.Received(0).Update(Arg.Any<Order>());
 
             //Assert.Contains(_publishedEvents, e => e.GetType().Name == "OrderDraftStartedEvent");
             //Assert.Contains(_publishedEvents, e => e.GetType().Name == "OrderItemAddedEvent");

@@ -2,23 +2,26 @@
 using Ambev.DeveloperEvaluation.Domain.Services.Catalog;
 using Ambev.DeveloperEvoluation.Core.Communication.Mediator;
 using Ambev.DeveloperEvoluation.Core.Messages.Commons.IntegrationEvents;
+using Ambev.DeveloperEvoluation.Domain.Events.Catalog;
 using MediatR;
 
 namespace Ambev.DeveloperEvaluation.Domain.Events.Catalog
 {
     public class ProductEventHandler :
     INotificationHandler<ProductLowStockEvent>,
+    INotificationHandler<ProductCreatedEvent>,
     INotificationHandler<OrderStartedEvent>,
     INotificationHandler<OrderProcessingCancelledEvent>
     {
+        private readonly IProductRepositoryMongo _productRepositoryMongo;
         private readonly IProductRepository _productRepository;
         private readonly IStockService _stockService;
         private readonly IMediatorHandler _mediatorHandler;
 
-        public ProductEventHandler(IProductRepository productRepository,
-                                   IStockService stockService,
-                                   IMediatorHandler mediatorHandler)
+        public ProductEventHandler(IProductRepositoryMongo productRepositoryMongo, IProductRepository productRepository, 
+                                   IStockService stockService, IMediatorHandler mediatorHandler)
         {
+            _productRepositoryMongo = productRepositoryMongo;
             _productRepository = productRepository;
             _stockService = stockService;
             _mediatorHandler = mediatorHandler;
@@ -57,6 +60,32 @@ namespace Ambev.DeveloperEvaluation.Domain.Events.Catalog
         public async Task Handle(OrderProcessingCancelledEvent message, CancellationToken cancellationToken)
         {
             await _stockService.ReplenishListProductsOrder(message.OrderProducts);
+        }
+
+        public async Task Handle(ProductCreatedEvent message, CancellationToken cancellationToken)
+        {          
+
+            try
+            {                              
+                if (message == null)
+                    throw new DomainException("Product not found.");
+
+                // Adicionar a categoria no MongoDB
+                await _productRepositoryMongo.AddCategoryToMongo(message.Product.Category);
+
+                // Adicionar o produto no MongoDB
+                await _productRepositoryMongo.AddProductToMongo(message.Product);               
+
+            }
+            catch (ArgumentException)
+            {
+                throw;
+            }
+            catch (Exception)
+            {
+                throw new Exception("Erro ao tentar sincronizar base de dados.");
+            }           
+            
         }
     }
 

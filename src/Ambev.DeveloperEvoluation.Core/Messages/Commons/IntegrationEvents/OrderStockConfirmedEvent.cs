@@ -13,7 +13,8 @@ namespace Ambev.DeveloperEvoluation.Core.Messages.Commons.IntegrationEvents
         public string CardExpiration { get; private set; }
         public string CardCvv { get; private set; }
 
-        public OrderStockConfirmedEvent(Guid orderId, Guid customerId, decimal total, OrderProductsList orderProducts, string cardHolderName, string cardNumber, string cardExpiration, string cardCvv)
+        public OrderStockConfirmedEvent(Guid orderId, Guid customerId, decimal total, OrderProductsList orderProducts, 
+                                        string cardHolderName, string cardNumber, string cardExpiration, string cardCvv)
         {
             AggregateId = orderId;
             OrderId = orderId;

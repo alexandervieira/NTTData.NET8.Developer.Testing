@@ -1,9 +1,9 @@
 ﻿namespace Ambev.DeveloperEvoluation.Core.Data
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
         Task<bool> CommitAsync();
-        bool Commit();
-        void Rollback();
+        Task CommitTransactionAsync();
+        Task RollbackTransactionAsync();
     }
 }

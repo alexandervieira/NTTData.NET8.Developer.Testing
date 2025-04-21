@@ -1,4 +1,4 @@
-﻿using Ambev.DeveloperEvaluation.Domain.ValueObjects;
+﻿using Ambev.DeveloperEvaluation.Core.DomainObjects.ValueObjects;
 
 namespace Ambev.DeveloperEvaluation.Application.Catalog.DTOs
 {

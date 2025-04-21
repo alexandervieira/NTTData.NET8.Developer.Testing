@@ -15,4 +15,3 @@ namespace Ambev.DeveloperEvaluation.Application.Catalog.AutoMapper
         }
     }
 }
-
